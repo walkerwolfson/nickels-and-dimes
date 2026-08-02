@@ -31,6 +31,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const [state, formAction, pending] = useActionState(updateProfile, initialState);
   const [photoUrl, setPhotoUrl] = useState(profile.photoUrl);
   const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isMetric = profile.units === "KG";
@@ -74,6 +75,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setPhotoError(null);
     try {
       const supabase = createClient();
       const ext = file.name.split(".").pop() || "jpg";
@@ -87,10 +89,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       const url = `${data.publicUrl}?t=${Date.now()}`;
       await updatePhoto(url);
       setPhotoUrl(url);
-    } catch {
-      // Upload failed silently — user can just try again; not worth a hard error state here.
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "Upload failed — try again.");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   }
 
@@ -120,10 +123,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
           className="hidden"
           onChange={handlePhotoChange}
         />
+        {photoError && <span className="max-w-[220px] text-center text-[12px] text-pink">{photoError}</span>}
         <input type="hidden" name="photoUrl" value={photoUrl ?? ""} />
       </div>
 
