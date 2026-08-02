@@ -1,6 +1,9 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
-export async function getProfile(userId: string) {
+// Cached per-request: the layout and most pages each need the profile, so this avoids
+// hitting the database twice for the same row on every single navigation.
+export const getProfile = cache(async (userId: string) => {
   const profile = await prisma.profile.findUnique({ where: { id: userId } });
   if (profile) return profile;
 
@@ -19,4 +22,4 @@ export async function getProfile(userId: string) {
     marketingOptIn: false,
     createdAt: new Date(),
   };
-}
+});

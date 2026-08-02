@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import { NavBar } from "@/components/NavBar";
 import { getCurrentUserId } from "@/lib/auth";
 import { getProfile } from "@/lib/data/profile";
@@ -13,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg"
       style={{ zoom: FONT_SCALE[profile.fontSize] ?? 1 }}
     >
-      {children}
+      <ViewTransition>{children}</ViewTransition>
       <NavBar />
     </div>
   );

@@ -163,11 +163,9 @@ function aggregate(entries: SeedEntry[], range: HistoryRange, referenceDate: Dat
   return { range, heroTotal, breakdown, chart, rows };
 }
 
-export async function getHistoryData(range: HistoryRange, userId: string = DEMO_USER_ID): Promise<HistoryData> {
-  const referenceDate = new Date();
-
+async function fetchUserEntries(userId: string, referenceDate: Date): Promise<SeedEntry[]> {
   if (!process.env.DATABASE_URL) {
-    return aggregate(generateSeedEntries(referenceDate), range, referenceDate);
+    return generateSeedEntries(referenceDate);
   }
 
   const logEntries = await prisma.logEntry.findMany({
@@ -175,12 +173,29 @@ export async function getHistoryData(range: HistoryRange, userId: string = DEMO_
     select: { exerciseId: true, unit: true, value: true, workoutLog: { select: { loggedAt: true } } },
   });
 
-  const entries: SeedEntry[] = logEntries.map((e) => ({
+  return logEntries.map((e) => ({
     date: e.workoutLog.loggedAt,
     exerciseId: e.exerciseId,
     unit: e.unit as "reps" | "time",
     value: e.value,
   }));
+}
 
+export async function getHistoryData(range: HistoryRange, userId: string = DEMO_USER_ID): Promise<HistoryData> {
+  const referenceDate = new Date();
+  const entries = await fetchUserEntries(userId, referenceDate);
   return aggregate(entries, range, referenceDate);
+}
+
+// Computes all four ranges from a single fetch — the History page needs every range at once
+// for instant tab-switching, and re-fetching per range was hitting the database 4x for
+// identical data (range filtering happens in-memory in `aggregate`, not in the query).
+export async function getAllHistoryRanges(userId: string = DEMO_USER_ID): Promise<Record<HistoryRange, HistoryData>> {
+  const referenceDate = new Date();
+  const entries = await fetchUserEntries(userId, referenceDate);
+  const ranges: HistoryRange[] = ["W", "M", "Y", "All"];
+  return Object.fromEntries(ranges.map((r) => [r, aggregate(entries, r, referenceDate)])) as Record<
+    HistoryRange,
+    HistoryData
+  >;
 }
