@@ -10,7 +10,7 @@ const initialState: AuthState = {};
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(sendMagicLink, initialState);
-  const [marketingOptIn, setMarketingOptIn] = useState(true);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [googlePending, setGooglePending] = useState(false);
 
   async function handleGoogle() {
@@ -65,7 +65,8 @@ export function LoginForm() {
             className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-border"
           />
           <span className="text-[12.5px] leading-snug text-text-dim">
-            Keep me posted on new features, challenges, and club news by email.
+            Send me occasional emails about new features, club challenges, and product updates.
+            You can change this anytime in Settings.
           </span>
         </label>
 

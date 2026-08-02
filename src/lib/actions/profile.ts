@@ -55,10 +55,11 @@ export async function updatePreferences(formData: FormData): Promise<void> {
   const fontSize: FontSize = (["SMALL", "MEDIUM", "LARGE"] as const).includes(rawFontSize as FontSize)
     ? (rawFontSize as FontSize)
     : "MEDIUM";
+  const marketingOptIn = formData.get("marketingOptIn") === "true";
 
   await prisma.profile.update({
     where: { id: userId },
-    data: { units, fontSize },
+    data: { units, fontSize, marketingOptIn },
   });
 
   revalidatePath("/settings");

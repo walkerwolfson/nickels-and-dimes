@@ -12,7 +12,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex-1 overflow-y-auto pb-8" style={{ background: "var(--bg)" }}>
       <TopBar title="Settings" />
-      <SettingsForm units={profile.units} fontSize={profile.fontSize} />
+      <SettingsForm units={profile.units} fontSize={profile.fontSize} marketingOptIn={profile.marketingOptIn} />
       {admin && (
         <div className="mt-8 px-5">
           <Link
