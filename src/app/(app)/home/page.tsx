@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, Heart, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
+import { Sidebar } from "@/components/Sidebar";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { getFeed } from "@/lib/data/feed";
 import { toggleLike } from "@/lib/actions/feed";
@@ -37,14 +38,14 @@ export default async function HomePage() {
           <span className="font-data text-xs tracking-wide text-text-faint">{todayStr().toUpperCase()}</span>
           <h1 className="mt-1 font-stencil text-2xl uppercase tracking-wide text-text">Nickels &amp; Dimes</h1>
         </div>
-        <Link href="/profile" className="flex-shrink-0 overflow-hidden rounded-full" style={{ width: 36, height: 36 }}>
+        <Sidebar className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full">
           {profile.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.photoUrl} alt="" className="h-full w-full object-cover" />
           ) : (
             <Avatar initials={initials(profile.displayName)} color="var(--purple)" size={36} />
           )}
-        </Link>
+        </Sidebar>
       </div>
 
       <InstallPrompt />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronRight } from "lucide-react";
+import { X, ChevronRight, Plus } from "lucide-react";
 import { EXERCISES, fmtTime, type Exercise } from "@/lib/domain";
 import type { SessionItem } from "@/components/log/LogFlow";
 
@@ -17,6 +17,7 @@ export function AddExercise({
   const [hours, setHours] = useState("");
   const [minutes, setMinutes] = useState("");
   const [seconds, setSeconds] = useState("");
+  const [showTime, setShowTime] = useState(false);
 
   if (!selected) {
     return (
@@ -89,35 +90,49 @@ export function AddExercise({
             />
             <span className="font-data text-xs tracking-wide text-text-dim">REPS</span>
           </div>
-          <div className="mt-6 px-5">
-            <span className="font-data text-[11px] tracking-wide text-text-dim">TIME IT TOOK (OPTIONAL)</span>
-            <div className="mt-2 flex items-center justify-center gap-1.5">
-              {[
-                { v: hours, set: setHours, ph: "0" },
-                { v: minutes, set: setMinutes, ph: "00" },
-                { v: seconds, set: setSeconds, ph: "00" },
-              ].map((f, i) => (
-                <div key={i} className="flex items-center gap-1.5">
-                  {i > 0 && <span className="font-display text-2xl text-text-dim">:</span>}
-                  <input
-                    value={f.v}
-                    onChange={(e) => f.set(e.target.value.replace(/[^0-9]/g, ""))}
-                    placeholder={f.ph}
-                    className="w-12 rounded-lg border border-border bg-surface py-1.5 text-center font-display text-2xl text-text"
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="mt-1 flex items-center justify-center gap-1.5">
-              {["HRS", "MIN", "SEC"].map((l, i) => (
-                <span key={l} className={`w-12 text-center font-data text-[9px] text-text-faint ${i > 0 ? "ml-1.5" : ""}`}>
-                  {l}
+          <div className="mt-8 px-5">
+            {!showTime ? (
+              <button
+                onClick={() => setShowTime(true)}
+                className="mx-auto flex items-center gap-1.5 font-data text-xs text-text-faint"
+              >
+                <Plus size={13} /> Add time it took (totally optional)
+              </button>
+            ) : (
+              <>
+                <span className="font-data text-[11px] tracking-wide text-text-dim">
+                  TIME IT TOOK <span className="text-text-faint">— OPTIONAL, SKIP IF N/A</span>
                 </span>
-              ))}
-            </div>
-            <span className="mt-1.5 block text-center font-data text-[10px] text-text-faint">
-              e.g. 30 push-ups in 30 minutes
-            </span>
+                <div className="mt-2 flex items-center justify-center gap-1.5">
+                  {[
+                    { v: hours, set: setHours, ph: "0" },
+                    { v: minutes, set: setMinutes, ph: "00" },
+                    { v: seconds, set: setSeconds, ph: "00" },
+                  ].map((f, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      {i > 0 && <span className="font-display text-2xl text-text-dim">:</span>}
+                      <input
+                        autoFocus={i === 0}
+                        value={f.v}
+                        onChange={(e) => f.set(e.target.value.replace(/[^0-9]/g, ""))}
+                        placeholder={f.ph}
+                        className="w-12 rounded-lg border border-border bg-surface py-1.5 text-center font-display text-2xl text-text"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-1 flex items-center justify-center gap-1.5">
+                  {["HRS", "MIN", "SEC"].map((l, i) => (
+                    <span key={l} className={`w-12 text-center font-data text-[9px] text-text-faint ${i > 0 ? "ml-1.5" : ""}`}>
+                      {l}
+                    </span>
+                  ))}
+                </div>
+                <span className="mt-1.5 block text-center font-data text-[10px] text-text-faint">
+                  e.g. 30 push-ups in 30 minutes — only fill this in if you actually timed it
+                </span>
+              </>
+            )}
           </div>
         </>
       ) : (
