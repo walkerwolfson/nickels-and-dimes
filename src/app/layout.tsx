@@ -30,6 +30,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Nickels & Dimes",
   description: "Calisthenics rep tracking — log, clubs, PRs, history.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Nickels & Dimes",
+  },
+};
+
+export const viewport = {
+  themeColor: "#8C6FF0",
 };
 
 export default function RootLayout({

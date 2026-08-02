@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ChevronRight, Heart, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
-import { DEMO_FEED } from "@/lib/data/feed";
+import { getFeed } from "@/lib/data/feed";
+import { toggleLike } from "@/lib/actions/feed";
 import { getCurrentUserId } from "@/lib/auth";
 import { getProfile } from "@/lib/data/profile";
 import { getTodayBreakdown } from "@/lib/data/home";
@@ -22,7 +23,11 @@ function initials(name: string) {
 
 export default async function HomePage() {
   const userId = await getCurrentUserId();
-  const [breakdown, profile] = await Promise.all([getTodayBreakdown(userId), getProfile(userId)]);
+  const [breakdown, profile, feed] = await Promise.all([
+    getTodayBreakdown(userId),
+    getProfile(userId),
+    getFeed(userId),
+  ]);
 
   return (
     <div className="flex-1 overflow-y-auto pb-4" style={{ background: "var(--bg)" }}>
@@ -77,34 +82,49 @@ export default async function HomePage() {
         <span className="font-data text-xs tracking-wide text-text-dim">ACTIVITY</span>
       </div>
       <div className="mt-3 flex flex-col gap-3 px-5">
-        {DEMO_FEED.map((post) => (
-          <div key={post.id} className="rounded-[10px] border-[1.5px] border-border bg-surface p-4">
-            <div className="flex items-center gap-3">
-              <Avatar initials={post.initials} color={post.color} />
-              <div className="flex-1">
-                <div className="text-sm font-bold text-text">{post.person}</div>
-                <div className="font-data text-[11px] text-text-faint">{post.time}</div>
-              </div>
-            </div>
-            <div className="mt-3 flex flex-col gap-1">
-              {post.lines.map((l, i) => (
-                <span key={i} className="font-display text-lg uppercase text-text">
-                  {l}
-                </span>
-              ))}
-            </div>
-            <div className="mt-3 flex items-center gap-4 text-text-dim">
-              <div className="flex items-center gap-1.5">
-                <Heart size={15} color="var(--pink)" />
-                <span className="font-data text-xs">{post.likes}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MessageCircle size={15} />
-                <span className="font-data text-xs">{post.comments}</span>
-              </div>
-            </div>
+        {feed.length === 0 ? (
+          <div className="rounded-[10px] border-[1.5px] border-border bg-surface p-4 text-center">
+            <span className="text-[13px] text-text-dim">
+              No activity yet. Join or start a club to see posts here from people you train with.
+            </span>
           </div>
-        ))}
+        ) : (
+          feed.map((post) => (
+            <div key={post.id} className="rounded-[10px] border-[1.5px] border-border bg-surface p-4">
+              <div className="flex items-center gap-3">
+                {post.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={post.photoUrl} alt="" className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
+                ) : (
+                  <Avatar initials={post.initials} color={post.color} />
+                )}
+                <div className="flex-1">
+                  <div className="text-sm font-bold text-text">{post.person}</div>
+                  <div className="font-data text-[11px] text-text-faint">{post.time}</div>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col gap-1">
+                {post.lines.map((l, i) => (
+                  <span key={i} className="font-display text-lg uppercase text-text">
+                    {l}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-3 flex items-center gap-4 text-text-dim">
+                <form action={toggleLike.bind(null, post.id)}>
+                  <button type="submit" className="flex items-center gap-1.5">
+                    <Heart size={15} color="var(--pink)" fill={post.likedByMe ? "var(--pink)" : "none"} />
+                    <span className="font-data text-xs">{post.likes}</span>
+                  </button>
+                </form>
+                <div className="flex items-center gap-1.5">
+                  <MessageCircle size={15} />
+                  <span className="font-data text-xs">{post.comments}</span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

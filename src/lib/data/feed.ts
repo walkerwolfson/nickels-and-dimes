@@ -1,54 +1,62 @@
+import { prisma } from "@/lib/prisma";
+import { colorForUser } from "@/lib/user-colors";
+import { fmtRelativeTime } from "@/lib/domain";
+
 export type FeedPost = {
-  id: number;
+  id: string;
+  userId: string;
   person: string;
+  photoUrl: string | null;
   initials: string;
   color: string;
   time: string;
   lines: string[];
   likes: number;
+  likedByMe: boolean;
   comments: number;
 };
 
-// Placeholder feed until club membership + real posts are wired up.
-export const DEMO_FEED: FeedPost[] = [
-  {
-    id: 1,
-    person: "Jennifer Petrone",
-    initials: "JP",
-    color: "#FF6FA0",
-    time: "1h ago",
-    lines: ["120 push-ups", "40 pull-ups"],
-    likes: 6,
-    comments: 2,
-  },
-  {
-    id: 2,
-    person: "Cooper Wolfson",
-    initials: "CW",
-    color: "#8C6FF0",
-    time: "3h ago",
-    lines: ["Nickels and Dimes — 12 rounds"],
-    likes: 4,
-    comments: 1,
-  },
-  {
-    id: 3,
-    person: "Leanne Wolfson",
-    initials: "LW",
-    color: "#6FA4F0",
-    time: "5h ago",
-    lines: ["Plank — 4:12"],
-    likes: 3,
-    comments: 0,
-  },
-  {
-    id: 4,
-    person: "Brad Frey",
-    initials: "BF",
-    color: "#E0A23E",
-    time: "Yesterday",
-    lines: ["Murph — completed"],
-    likes: 9,
-    comments: 3,
-  },
-];
+function initials(name: string): string {
+  return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+}
+
+// Real feed: posts from you and anyone you share a club with — matches the brief's
+// "friends'/club posts" since clubs are the only social graph this app has.
+export async function getFeed(userId: string): Promise<FeedPost[]> {
+  if (!process.env.DATABASE_URL) return [];
+
+  const memberships = await prisma.clubMembership.findMany({ where: { userId }, select: { clubId: true } });
+  const clubIds = memberships.map((m) => m.clubId);
+
+  const clubMates =
+    clubIds.length > 0
+      ? await prisma.clubMembership.findMany({ where: { clubId: { in: clubIds } }, select: { userId: true } })
+      : [];
+
+  const feedUserIds = Array.from(new Set([userId, ...clubMates.map((m) => m.userId)]));
+
+  const logs = await prisma.workoutLog.findMany({
+    where: { userId: { in: feedUserIds } },
+    orderBy: { loggedAt: "desc" },
+    take: 20,
+    include: {
+      profile: { select: { displayName: true, photoUrl: true } },
+      _count: { select: { likes: true, comments: true } },
+      likes: { where: { userId }, select: { id: true } },
+    },
+  });
+
+  return logs.map((log) => ({
+    id: log.id,
+    userId: log.userId,
+    person: log.profile.displayName,
+    photoUrl: log.profile.photoUrl,
+    initials: initials(log.profile.displayName),
+    color: colorForUser(log.userId),
+    time: fmtRelativeTime(log.loggedAt),
+    lines: log.lines,
+    likes: log._count.likes,
+    likedByMe: log.likes.length > 0,
+    comments: log._count.comments,
+  }));
+}
