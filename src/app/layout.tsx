@@ -27,13 +27,27 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const TAGLINE = "Stop logging push-ups in your Notes app.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nickels-and-dimes.vercel.app"),
   title: "Nickels & Dimes",
-  description: "Calisthenics rep tracking — log, clubs, PRs, history.",
+  description: TAGLINE,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Nickels & Dimes",
+  },
+  openGraph: {
+    title: "Nickels & Dimes",
+    description: TAGLINE,
+    siteName: "Nickels & Dimes",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nickels & Dimes",
+    description: TAGLINE,
   },
 };
 
