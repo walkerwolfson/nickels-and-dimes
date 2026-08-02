@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, Heart, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { getFeed } from "@/lib/data/feed";
 import { toggleLike } from "@/lib/actions/feed";
 import { getCurrentUserId } from "@/lib/auth";
@@ -45,6 +46,8 @@ export default async function HomePage() {
           )}
         </Link>
       </div>
+
+      <InstallPrompt />
 
       <div className="mt-3 px-5">
         <Link

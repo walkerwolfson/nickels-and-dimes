@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div
-      className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-bg"
+      className="mx-auto flex h-dvh max-w-[480px] flex-col overflow-hidden bg-bg"
       style={{ zoom: FONT_SCALE[profile.fontSize] ?? 1 }}
     >
       <ViewTransition>{children}</ViewTransition>
