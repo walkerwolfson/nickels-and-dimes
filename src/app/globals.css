@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #eef0fb;
+  --surface: #ffffff;
+  --surface-alt: #e4e7f8;
+  --border: #cdd1ec;
+  --text: #211f35;
+  --text-dim: #65637f;
+  --text-faint: #9c9ab6;
+  --purple: #8c6ff0;
+  --purple-deep: #6e4fe0;
+  --purple-soft: #ede7fe;
+  --blue: #6fa4f0;
+  --blue-soft: #e4eeff;
+  --yellow: #e8ff3d;
+  --yellow-deep: #8c9600;
+  --pink: #ff6fa0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-faint: var(--text-faint);
+  --color-purple: var(--purple);
+  --color-purple-deep: var(--purple-deep);
+  --color-purple-soft: var(--purple-soft);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-yellow: var(--yellow);
+  --color-yellow-deep: var(--yellow-deep);
+  --color-pink: var(--pink);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-oswald), sans-serif;
+  --font-stencil: var(--font-black-ops-one), var(--font-oswald), sans-serif;
+  --font-data: var(--font-ibm-plex-mono), monospace;
+  --font-body: var(--font-inter), sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+select option {
+  background: #fff;
+  color: #211f35;
 }

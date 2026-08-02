@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Units {
+  LB
+  KG
+}
+
+enum FontSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+// Mirrors a Supabase auth.users row (same id). Created on first login.
+model Profile {
+  id             String    @id @db.Uuid
+  email          String?   @unique
+  displayName    String
+  photoUrl       String?
+  heightCm       Float?
+  weightKg       Float?
+  birthday       DateTime? @db.Date
+  units          Units     @default(LB)
+  fontSize       FontSize  @default(MEDIUM)
+  marketingOptIn Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+
+  workoutLogs     WorkoutLog[]
+  clubMemberships ClubMembership[]
+  personalRecords PersonalRecord[]
+  createdClubs    Club[]           @relation("ClubCreator")
+  likes           FeedLike[]
+  comments        FeedComment[]
+}
+
+// One "Post workout" submission — a full session, possibly multiple exercises/WODs.
+model WorkoutLog {
+  id        String   @id @default(cuid())
+  userId    String   @db.Uuid
+  profile   Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lines     String[] // display lines, e.g. "200 Push-ups", "Nickels and Dimes — 12 rounds"
+  totalReps Int      @default(0)
+  loggedAt  DateTime @default(now()) // when the workout happened (always "now" at post time)
+  createdAt DateTime @default(now())
+
+  entries  LogEntry[]
+  likes    FeedLike[]
+  comments FeedComment[]
+
+  @@index([userId, loggedAt])
+}
+
+// Normalized per-exercise breakdown of a WorkoutLog, for aggregation (history charts, leaderboards).
+model LogEntry {
+  id           String     @id @default(cuid())
+  workoutLogId String
+  workoutLog   WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  exerciseId   String
+  unit         String // "reps" | "time"
+  value        Int // reps, or seconds for time-based exercises
+
+  @@index([exerciseId])
+  @@index([workoutLogId])
+}
+
+model FeedLike {
+  id           String     @id @default(cuid())
+  workoutLogId String
+  workoutLog   WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  userId       String     @db.Uuid
+  profile      Profile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([workoutLogId, userId])
+}
+
+model FeedComment {
+  id           String     @id @default(cuid())
+  workoutLogId String
+  workoutLog   WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+  userId       String     @db.Uuid
+  profile      Profile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  body         String
+  createdAt    DateTime   @default(now())
+}
+
+model Club {
+  id          String   @id @default(cuid())
+  name        String
+  createdById String   @db.Uuid
+  createdBy   Profile  @relation("ClubCreator", fields: [createdById], references: [id])
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  memberships ClubMembership[]
+}
+
+model ClubMembership {
+  id       String   @id @default(cuid())
+  clubId   String
+  club     Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  userId   String   @db.Uuid
+  profile  Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+
+  @@unique([clubId, userId])
+}
+
+// One row per user per exercise/WOD id — updated when a new log beats the stored value.
+model PersonalRecord {
+  id          String   @id @default(cuid())
+  userId      String   @db.Uuid
+  profile     Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId  String // exercise id or WOD id
+  value       Int // reps, seconds, or rounds depending on the movement
+  achievedAt  DateTime @default(now())
+  sourceLogId String?
+
+  @@unique([userId, exerciseId])
+}
