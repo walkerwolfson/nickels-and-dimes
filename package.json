@@ -10,6 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.12",
     "@prisma/client": "^6.19.3",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.111.0",

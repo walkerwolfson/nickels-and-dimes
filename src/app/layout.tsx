@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Black_Ops_One, Oswald, IBM_Plex_Mono, Inter } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
 const blackOpsOne = Black_Ops_One({
@@ -42,6 +43,7 @@ export default function RootLayout({
       className={`${blackOpsOne.variable} ${oswald.variable} ${ibmPlexMono.variable} ${inter.variable} h-full`}
     >
       <body className="min-h-dvh font-body antialiased">{children}</body>
+      {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId="G-6BBLY66WJF" />}
     </html>
   );
 }
