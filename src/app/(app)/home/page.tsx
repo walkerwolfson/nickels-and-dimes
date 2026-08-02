@@ -37,6 +37,13 @@ export default async function HomePage() {
         <div>
           <span className="font-data text-xs tracking-wide text-text-faint">{todayStr().toUpperCase()}</span>
           <h1 className="mt-1 font-stencil text-2xl uppercase tracking-wide text-text">Nickels &amp; Dimes</h1>
+          <span
+            className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-data text-[9px] font-bold tracking-widest"
+            style={{ background: "var(--yellow)", color: "#2B2E00" }}
+          >
+            <span className="h-1 w-1 rounded-full" style={{ background: "#2B2E00" }} />
+            BETA
+          </span>
         </div>
         <Sidebar className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full">
           {profile.photoUrl ? (
