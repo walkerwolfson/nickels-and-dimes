@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { colorForUser } from "@/lib/user-colors";
 import { EXERCISE_BY_ID } from "@/lib/domain";
+import { zonedMonthStart, zonedYearStart } from "@/lib/timezone";
 
 export type ClubSummary = { id: string; name: string; memberCount: number };
 
@@ -36,17 +37,15 @@ export type LeaderboardRange = (typeof LEADERBOARD_RANGES)[number];
 
 function rangeBounds(range: LeaderboardRange): { gte?: Date; lt?: Date } {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
   switch (range) {
     case "This month":
-      return { gte: new Date(y, m, 1) };
+      return { gte: zonedMonthStart(now) };
     case "Last month":
-      return { gte: new Date(y, m - 1, 1), lt: new Date(y, m, 1) };
+      return { gte: zonedMonthStart(now, undefined, -1), lt: zonedMonthStart(now) };
     case "This year":
-      return { gte: new Date(y, 0, 1) };
+      return { gte: zonedYearStart(now) };
     case "Last year":
-      return { gte: new Date(y - 1, 0, 1), lt: new Date(y, 0, 1) };
+      return { gte: zonedYearStart(now, undefined, -1), lt: zonedYearStart(now) };
     case "All time":
       return {};
   }

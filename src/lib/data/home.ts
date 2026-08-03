@@ -1,15 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { EXERCISE_BY_ID } from "@/lib/domain";
+import { zonedDayBounds } from "@/lib/timezone";
 
 export type TodayBreakdownItem = { exerciseId: string; name: string; unit: "reps" | "time"; value: number };
 
 export async function getTodayBreakdown(userId: string): Promise<TodayBreakdownItem[]> {
   if (!process.env.DATABASE_URL) return [];
 
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  const { start, end } = zonedDayBounds();
 
   const entries = await prisma.logEntry.findMany({
     where: { workoutLog: { userId, loggedAt: { gte: start, lt: end } } },

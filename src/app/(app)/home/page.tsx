@@ -9,9 +9,15 @@ import { getCurrentUserId } from "@/lib/auth";
 import { getProfile } from "@/lib/data/profile";
 import { getTodayBreakdown } from "@/lib/data/home";
 import { fmtTime } from "@/lib/domain";
+import { APP_TIME_ZONE } from "@/lib/timezone";
 
 function todayStr() {
-  return new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    timeZone: APP_TIME_ZONE,
+  });
 }
 
 function initials(name: string) {

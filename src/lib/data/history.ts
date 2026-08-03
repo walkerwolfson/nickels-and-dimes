@@ -3,6 +3,7 @@ import { EXERCISES, EXERCISE_BY_ID } from "@/lib/domain";
 import { colorForExercise, OTHER_COLOR } from "@/lib/exercise-colors";
 import { generateSeedEntries, type SeedEntry } from "@/lib/data/seed";
 import { DEMO_USER_ID } from "@/lib/demo-user";
+import { APP_TIME_ZONE, zonedDayBounds, zonedMonthStart, zonedYearStart } from "@/lib/timezone";
 import type { StackedBucket } from "@/components/charts/StackedBarChart";
 
 export type HistoryRange = "W" | "M" | "Y" | "All";
@@ -16,48 +17,44 @@ export const RANGE_LABEL: Record<HistoryRange, string> = {
 
 type Bucket = { start: Date; end: Date; label: string };
 
-function startOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function getBucketDefs(range: HistoryRange, referenceDate: Date, earliestDate: Date): Bucket[] {
-  const today = startOfDay(referenceDate);
+  const today = zonedDayBounds(referenceDate).start;
   const buckets: Bucket[] = [];
 
   if (range === "W") {
     for (let i = 6; i >= 0; i--) {
-      const start = new Date(today);
-      start.setDate(start.getDate() - i);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 1);
-      buckets.push({ start, end, label: start.toLocaleDateString(undefined, { weekday: "short" }) });
+      const start = new Date(today.getTime() - i * DAY_MS);
+      const end = new Date(start.getTime() + DAY_MS);
+      buckets.push({ start, end, label: start.toLocaleDateString("en-US", { weekday: "short", timeZone: APP_TIME_ZONE }) });
     }
   } else if (range === "M") {
     for (let i = 3; i >= 0; i--) {
-      const end = new Date(today);
-      end.setDate(end.getDate() - i * 7);
-      const start = new Date(end);
-      start.setDate(start.getDate() - 7);
+      const end = new Date(today.getTime() - i * 7 * DAY_MS);
+      const start = new Date(end.getTime() - 7 * DAY_MS);
       buckets.push({
         start,
         end,
-        label: start.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+        label: start.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: APP_TIME_ZONE }),
       });
     }
   } else if (range === "Y") {
     for (let i = 11; i >= 0; i--) {
-      const start = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      const end = new Date(today.getFullYear(), today.getMonth() - i + 1, 1);
-      buckets.push({ start, end, label: start.toLocaleDateString(undefined, { month: "short" }) });
+      const start = zonedMonthStart(referenceDate, APP_TIME_ZONE, -i);
+      const end = zonedMonthStart(referenceDate, APP_TIME_ZONE, -i + 1);
+      buckets.push({ start, end, label: start.toLocaleDateString("en-US", { month: "short", timeZone: APP_TIME_ZONE }) });
     }
   } else {
-    const startYear = Math.min(earliestDate.getFullYear(), today.getFullYear());
-    for (let year = startYear; year <= today.getFullYear(); year++) {
+    const startYear = Math.min(
+      Number(earliestDate.toLocaleDateString("en-US", { year: "numeric", timeZone: APP_TIME_ZONE })),
+      Number(today.toLocaleDateString("en-US", { year: "numeric", timeZone: APP_TIME_ZONE }))
+    );
+    const endYear = Number(today.toLocaleDateString("en-US", { year: "numeric", timeZone: APP_TIME_ZONE }));
+    for (let year = startYear; year <= endYear; year++) {
       buckets.push({
-        start: new Date(year, 0, 1),
-        end: new Date(year + 1, 0, 1),
+        start: zonedYearStart(referenceDate, APP_TIME_ZONE, year - endYear),
+        end: zonedYearStart(referenceDate, APP_TIME_ZONE, year - endYear + 1),
         label: String(year),
       });
     }

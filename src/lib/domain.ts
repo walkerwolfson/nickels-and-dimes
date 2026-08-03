@@ -1,3 +1,5 @@
+import { APP_TIME_ZONE, zonedDateKey } from "@/lib/timezone";
+
 export type ExerciseUnit = "reps" | "time";
 
 export type Exercise = {
@@ -86,17 +88,17 @@ export function fmtRelativeTime(date: Date): string {
   if (diffMin < 60) return `${diffMin}m ago`;
   const diffHr = Math.round(diffMin / 60);
   if (diffHr < 24) return `${diffHr}h ago`;
-  const isYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toDateString() === date.toDateString();
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const isYesterday = zonedDateKey(yesterday) === zonedDateKey(date);
   if (isYesterday) return "Yesterday";
   const diffDays = Math.round(diffHr / 24);
   if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: APP_TIME_ZONE });
 }
 
 export function fmtDateTime(date: Date): string {
-  const today = new Date();
-  const isToday = date.toDateString() === today.toDateString();
-  const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  const isToday = zonedDateKey(new Date()) === zonedDateKey(date);
+  const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: APP_TIME_ZONE });
   if (isToday) return `Today, ${time}`;
-  return `${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })}, ${time}`;
+  return `${date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: APP_TIME_ZONE })}, ${time}`;
 }
