@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { ensureDefaultClubMembership } from "@/lib/default-club";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -26,7 +25,6 @@ export async function GET(request: Request) {
         create: { id: user.id, email: user.email, displayName, marketingOptIn },
         update: { email: user.email },
       });
-      await ensureDefaultClubMembership(user.id);
 
       const response = NextResponse.redirect(`${origin}${next}`);
       response.cookies.set("marketing_opt_in", "", { maxAge: 0, path: "/" });

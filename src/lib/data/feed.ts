@@ -20,23 +20,12 @@ function initials(name: string): string {
   return name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
 }
 
-// Real feed: posts from you and anyone you share a club with — matches the brief's
-// "friends'/club posts" since clubs are the only social graph this app has.
+// Global feed: every logged-in user's posts, visible to everyone — clubs are a
+// separate, private/opt-in leaderboard grouping and don't gate feed visibility.
 export async function getFeed(userId: string): Promise<FeedPost[]> {
   if (!process.env.DATABASE_URL) return [];
 
-  const memberships = await prisma.clubMembership.findMany({ where: { userId }, select: { clubId: true } });
-  const clubIds = memberships.map((m) => m.clubId);
-
-  const clubMates =
-    clubIds.length > 0
-      ? await prisma.clubMembership.findMany({ where: { clubId: { in: clubIds } }, select: { userId: true } })
-      : [];
-
-  const feedUserIds = Array.from(new Set([userId, ...clubMates.map((m) => m.userId)]));
-
   const logs = await prisma.workoutLog.findMany({
-    where: { userId: { in: feedUserIds } },
     orderBy: { loggedAt: "desc" },
     take: 20,
     include: {
