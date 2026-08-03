@@ -99,6 +99,7 @@ model Club {
   createdById String   @db.Uuid
   createdBy   Profile  @relation("ClubCreator", fields: [createdById], references: [id])
   isPublic    Boolean  @default(true)
+  isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
 
   memberships ClubMembership[]
