@@ -28,9 +28,11 @@ model Profile {
   heightCm       Float?
   weightKg       Float?
   birthday       DateTime? @db.Date
+  hometown       String?
   units          Units     @default(LB)
   fontSize       FontSize  @default(MEDIUM)
   marketingOptIn Boolean   @default(false)
+  showPRs        Boolean   @default(false)
   isAdmin        Boolean   @default(false)
   createdAt      DateTime  @default(now())
 

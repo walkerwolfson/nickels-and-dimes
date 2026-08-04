@@ -13,6 +13,7 @@ type Profile = {
   heightCm: number | null;
   weightKg: number | null;
   birthday: Date | null;
+  hometown: string | null;
   units: "LB" | "KG";
 };
 
@@ -137,6 +138,16 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           name="displayName"
           defaultValue={profile.displayName}
           required
+          className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3.5 py-3 text-[15px] text-text outline-none"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="font-data text-xs tracking-wide text-text-dim">HOMETOWN</span>
+        <input
+          name="hometown"
+          defaultValue={profile.hometown ?? ""}
+          placeholder="e.g. Rockville Centre, NY"
           className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3.5 py-3 text-[15px] text-text outline-none"
         />
       </div>

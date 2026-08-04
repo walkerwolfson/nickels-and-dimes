@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Share2, Check } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { Dropdown } from "@/components/Dropdown";
 import { Avatar } from "@/components/Avatar";
@@ -11,6 +14,48 @@ import { joinClub, createClub } from "@/lib/actions/club";
 import { LEADERBOARD_RANGES, type ClubSummary, type LeaderboardRange, type LeaderboardRow } from "@/lib/data/club";
 
 const ORDINAL = (n: number) => (["st", "nd", "rd"][n - 1] ?? "th");
+
+function ShareClubButton({ club }: { club: ClubSummary }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    const url = `${window.location.origin}/club/join/${club.id}`;
+    const text = `Join my club "${club.name}" on Nickels and Dimes!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: club.name, text, url });
+      } catch {
+        // user cancelled the share sheet — no-op
+      }
+      return;
+    }
+
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button
+      onClick={handleShare}
+      className="flex flex-shrink-0 items-center gap-1.5 rounded-[20px] border px-3.5 py-2 font-data text-xs font-bold"
+      style={{ background: "var(--surface)", color: "var(--text-dim)", borderColor: "var(--border)" }}
+    >
+      {copied ? (
+        <>
+          <Check size={13} color="var(--purple-deep)" />
+          Copied!
+        </>
+      ) : (
+        <>
+          <Share2 size={13} />
+          Share
+        </>
+      )}
+    </button>
+  );
+}
 
 export function ClubScreen({
   userId,
@@ -65,24 +110,27 @@ export function ClubScreen({
       <TopBar title="Clubs" />
 
       {myClubs.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto px-5" style={{ scrollbarWidth: "none" }}>
-          {myClubs.map((c) => {
-            const active = c.id === selectedClubId;
-            return (
-              <button
-                key={c.id}
-                onClick={() => navigate({ club: c.id })}
-                className="flex-shrink-0 rounded-[20px] border px-4 py-2 font-data text-xs font-bold"
-                style={{
-                  background: active ? "var(--purple)" : "var(--surface)",
-                  color: active ? "#fff" : "var(--text-dim)",
-                  borderColor: active ? "var(--purple)" : "var(--border)",
-                }}
-              >
-                {c.name}
-              </button>
-            );
-          })}
+        <div className="flex items-center justify-between gap-2 px-5">
+          <div className="flex flex-1 gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            {myClubs.map((c) => {
+              const active = c.id === selectedClubId;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => navigate({ club: c.id })}
+                  className="flex-shrink-0 rounded-[20px] border px-4 py-2 font-data text-xs font-bold"
+                  style={{
+                    background: active ? "var(--purple)" : "var(--surface)",
+                    color: active ? "#fff" : "var(--text-dim)",
+                    borderColor: active ? "var(--purple)" : "var(--border)",
+                  }}
+                >
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+          {selectedClub && <ShareClubButton club={selectedClub} />}
         </div>
       )}
 
@@ -159,8 +207,9 @@ export function ClubScreen({
             {board.map((p, i) => {
               const isMe = p.userId === userId;
               return (
-                <div
+                <Link
                   key={p.userId}
+                  href={`/u/${p.userId}`}
                   className="flex items-center gap-3 rounded-[10px] py-3 pl-2.5 pr-2.5"
                   style={{ background: isMe ? "var(--purple-soft)" : "transparent" }}
                 >
@@ -177,7 +226,7 @@ export function ClubScreen({
                   <span className="font-data text-[13px] text-text-dim">
                     {exObj.unit === "time" ? fmtTime(p.value) : p.value.toLocaleString()}
                   </span>
-                </div>
+                </Link>
               );
             })}
           </div>

@@ -18,6 +18,15 @@ export async function getMyClubs(userId: string): Promise<ClubSummary[]> {
   }));
 }
 
+export async function getClubById(clubId: string): Promise<ClubSummary | null> {
+  const club = await prisma.club.findUnique({
+    where: { id: clubId },
+    include: { _count: { select: { memberships: true } } },
+  });
+  if (!club) return null;
+  return { id: club.id, name: club.name, memberCount: club._count.memberships };
+}
+
 export async function getDiscoverableClubs(userId: string, query: string): Promise<ClubSummary[]> {
   const clubs = await prisma.club.findMany({
     where: {

@@ -24,6 +24,7 @@ export async function updateProfile(_prev: ProfileFormState, formData: FormData)
   const weightKg = parseOptionalFloat(formData.get("weightKg"));
   const birthdayRaw = String(formData.get("birthday") || "");
   const photoUrl = String(formData.get("photoUrl") || "").trim();
+  const hometown = String(formData.get("hometown") || "").trim();
 
   await prisma.profile.update({
     where: { id: userId },
@@ -32,6 +33,7 @@ export async function updateProfile(_prev: ProfileFormState, formData: FormData)
       heightCm,
       weightKg,
       birthday: birthdayRaw ? new Date(birthdayRaw) : null,
+      hometown: hometown || null,
       ...(photoUrl ? { photoUrl } : {}),
     },
   });
@@ -56,10 +58,11 @@ export async function updatePreferences(formData: FormData): Promise<void> {
     ? (rawFontSize as FontSize)
     : "MEDIUM";
   const marketingOptIn = formData.get("marketingOptIn") === "true";
+  const showPRs = formData.get("showPRs") === "true";
 
   await prisma.profile.update({
     where: { id: userId },
-    data: { units, fontSize, marketingOptIn },
+    data: { units, fontSize, marketingOptIn, showPRs },
   });
 
   revalidatePath("/settings");

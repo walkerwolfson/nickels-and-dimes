@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ChevronRight, Heart, MessageCircle } from "lucide-react";
+import { ChevronRight, Menu } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { Sidebar } from "@/components/Sidebar";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { FeedPostCard } from "@/components/feed/FeedPostCard";
 import { getFeed } from "@/lib/data/feed";
-import { toggleLike } from "@/lib/actions/feed";
 import { getCurrentUserId } from "@/lib/auth";
 import { getProfile } from "@/lib/data/profile";
 import { getTodayBreakdown } from "@/lib/data/home";
@@ -39,26 +39,30 @@ export default async function HomePage() {
 
   return (
     <div className="flex-1 overflow-y-auto pb-4" style={{ background: "var(--bg)" }}>
-      <div className="flex items-start justify-between px-5 pt-6 pb-2">
-        <div>
-          <span className="font-data text-xs tracking-wide text-text-faint">{todayStr().toUpperCase()}</span>
-          <h1 className="mt-1 font-stencil text-2xl uppercase tracking-wide text-text">Nickels &amp; Dimes</h1>
-          <span
-            className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-data text-[9px] font-bold tracking-widest"
-            style={{ background: "var(--yellow)", color: "#2B2E00" }}
-          >
-            <span className="h-1 w-1 rounded-full" style={{ background: "#2B2E00" }} />
-            BETA
-          </span>
-        </div>
-        <Sidebar className="h-9 w-9 flex-shrink-0 overflow-hidden rounded-full">
+      <div className="flex items-center justify-between px-5 pt-6">
+        <Link href="/profile" className="h-11 w-11 flex-shrink-0 overflow-hidden rounded-full">
           {profile.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={profile.photoUrl} alt="" className="h-full w-full object-cover" />
           ) : (
-            <Avatar initials={initials(profile.displayName)} color="var(--purple)" size={36} />
+            <Avatar initials={initials(profile.displayName)} color="var(--purple)" size={44} />
           )}
+        </Link>
+        <Sidebar className="text-text-dim">
+          <Menu size={20} />
         </Sidebar>
+      </div>
+
+      <div className="px-5 pt-3 pb-2">
+        <span className="font-data text-xs tracking-wide text-text-faint">{todayStr().toUpperCase()}</span>
+        <h1 className="mt-1 font-stencil text-2xl uppercase tracking-wide text-text">Nickels &amp; Dimes</h1>
+        <span
+          className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-data text-[9px] font-bold tracking-widest"
+          style={{ background: "var(--yellow)", color: "#2B2E00" }}
+        >
+          <span className="h-1 w-1 rounded-full" style={{ background: "#2B2E00" }} />
+          BETA
+        </span>
       </div>
 
       <InstallPrompt />
@@ -106,41 +110,7 @@ export default async function HomePage() {
             </span>
           </div>
         ) : (
-          feed.map((post) => (
-            <div key={post.id} className="rounded-[10px] border-[1.5px] border-border bg-surface p-4">
-              <div className="flex items-center gap-3">
-                {post.photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={post.photoUrl} alt="" className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
-                ) : (
-                  <Avatar initials={post.initials} color={post.color} />
-                )}
-                <div className="flex-1">
-                  <div className="text-sm font-bold text-text">{post.person}</div>
-                  <div className="font-data text-[11px] text-text-faint">{post.time}</div>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-col gap-1">
-                {post.lines.map((l, i) => (
-                  <span key={i} className="font-display text-lg uppercase text-text">
-                    {l}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-3 flex items-center gap-4 text-text-dim">
-                <form action={toggleLike.bind(null, post.id)}>
-                  <button type="submit" className="flex items-center gap-1.5">
-                    <Heart size={15} color="var(--pink)" fill={post.likedByMe ? "var(--pink)" : "none"} />
-                    <span className="font-data text-xs">{post.likes}</span>
-                  </button>
-                </form>
-                <div className="flex items-center gap-1.5">
-                  <MessageCircle size={15} />
-                  <span className="font-data text-xs">{post.comments}</span>
-                </div>
-              </div>
-            </div>
-          ))
+          feed.map((post) => <FeedPostCard key={post.id} post={post} />)
         )}
       </div>
     </div>

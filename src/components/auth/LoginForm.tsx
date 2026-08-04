@@ -1,17 +1,75 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
-import { sendMagicLink, type AuthState } from "@/lib/actions/auth";
+import { sendMagicLink, completeOtpLogin, type AuthState } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 
 const initialState: AuthState = {};
 
+function CodeEntry({ email }: { email: string }) {
+  const router = useRouter();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault();
+    setPending(true);
+    setError(null);
+
+    const supabase = createClient();
+    const { error: verifyError } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+    if (verifyError) {
+      setError("That code didn't work — check it and try again.");
+      setPending(false);
+      return;
+    }
+
+    const { error: completeError } = await completeOtpLogin();
+    if (completeError) {
+      setError(completeError);
+      setPending(false);
+      return;
+    }
+
+    router.push("/home");
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleVerify} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1.5">
+        <span className="font-data text-xs tracking-wide text-text-dim">6-DIGIT CODE</span>
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          placeholder="000000"
+          className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3.5 py-3 text-center text-xl tracking-[0.3em] text-text outline-none"
+        />
+      </div>
+      {error && <span className="text-[12.5px] text-pink">{error}</span>}
+      <button
+        type="submit"
+        disabled={pending || code.length !== 6}
+        className="py-3.5 font-display text-[15px] uppercase text-white"
+        style={{ background: "var(--purple)", borderRadius: 12, opacity: pending || code.length !== 6 ? 0.6 : 1 }}
+      >
+        {pending ? "Verifying…" : "Verify code"}
+      </button>
+    </form>
+  );
+}
+
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(sendMagicLink, initialState);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [googlePending, setGooglePending] = useState(false);
+  const [email, setEmail] = useState("");
 
   async function handleGoogle() {
     setGooglePending(true);
@@ -25,7 +83,7 @@ export function LoginForm() {
 
   if (state.success) {
     return (
-      <div className="flex flex-col items-center gap-3 text-center">
+      <div className="flex flex-col items-center gap-4 text-center">
         <div
           className="flex h-14 w-14 items-center justify-center rounded-full"
           style={{ background: "var(--yellow)" }}
@@ -34,8 +92,11 @@ export function LoginForm() {
         </div>
         <span className="font-display text-xl uppercase text-text">Check your email</span>
         <span className="max-w-xs text-sm text-text-dim">
-          We sent you a sign-in link. Open it on this device to finish logging in.
+          Click the link, or enter the 6-digit code from the email below — whichever works.
         </span>
+        <div className="w-full">
+          <CodeEntry email={email} />
+        </div>
       </div>
     );
   }
@@ -50,6 +111,8 @@ export function LoginForm() {
             type="email"
             required
             autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3.5 py-3 text-[15px] text-text outline-none"
           />

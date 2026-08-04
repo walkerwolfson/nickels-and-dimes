@@ -40,21 +40,25 @@ export function SettingsForm({
   units: initialUnits,
   fontSize: initialFontSize,
   marketingOptIn: initialMarketingOptIn,
+  showPRs: initialShowPRs,
 }: {
   units: Units;
   fontSize: FontSize;
   marketingOptIn: boolean;
+  showPRs: boolean;
 }) {
   const [units, setUnits] = useState(initialUnits);
   const [fontSize, setFontSize] = useState(initialFontSize);
   const [marketingOptIn, setMarketingOptIn] = useState(initialMarketingOptIn);
+  const [showPRs, setShowPRs] = useState(initialShowPRs);
   const [, startTransition] = useTransition();
 
-  function save(nextUnits: Units, nextFontSize: FontSize, nextMarketingOptIn: boolean) {
+  function save(nextUnits: Units, nextFontSize: FontSize, nextMarketingOptIn: boolean, nextShowPRs: boolean) {
     const fd = new FormData();
     fd.set("units", nextUnits);
     fd.set("fontSize", nextFontSize);
     fd.set("marketingOptIn", String(nextMarketingOptIn));
+    fd.set("showPRs", String(nextShowPRs));
     startTransition(() => {
       updatePreferences(fd);
     });
@@ -71,7 +75,7 @@ export function SettingsForm({
               active={units === u}
               onClick={() => {
                 setUnits(u);
-                save(u, fontSize, marketingOptIn);
+                save(u, fontSize, marketingOptIn, showPRs);
               }}
             >
               {u}
@@ -89,7 +93,7 @@ export function SettingsForm({
               active={fontSize === f.value}
               onClick={() => {
                 setFontSize(f.value);
-                save(units, f.value, marketingOptIn);
+                save(units, f.value, marketingOptIn, showPRs);
               }}
             >
               {f.label}
@@ -112,7 +116,7 @@ export function SettingsForm({
             onClick={() => {
               const next = !marketingOptIn;
               setMarketingOptIn(next);
-              save(units, fontSize, next);
+              save(units, fontSize, next, showPRs);
             }}
             className="relative flex-shrink-0"
             style={{
@@ -126,6 +130,39 @@ export function SettingsForm({
             <span
               className="absolute top-0.5 rounded-full bg-white transition-all"
               style={{ width: 22, height: 22, left: marketingOptIn ? 20 : 2 }}
+            />
+          </button>
+        </label>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <span className="font-data text-xs tracking-wide text-text-dim">PRIVACY</span>
+        <label className="flex items-center justify-between rounded-[12px] border border-border bg-surface px-4 py-3.5">
+          <div className="flex flex-col pr-3">
+            <span className="text-[13.5px] font-semibold text-text">Display PRs on my profile</span>
+            <span className="mt-0.5 text-[11.5px] leading-snug text-text-faint">
+              Let other members see your personal records when they view your profile.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !showPRs;
+              setShowPRs(next);
+              save(units, fontSize, marketingOptIn, next);
+            }}
+            className="relative flex-shrink-0"
+            style={{
+              width: 44,
+              height: 26,
+              borderRadius: 999,
+              background: showPRs ? "var(--purple)" : "var(--border)",
+              transition: "background 0.15s",
+            }}
+          >
+            <span
+              className="absolute top-0.5 rounded-full bg-white transition-all"
+              style={{ width: 22, height: 22, left: showPRs ? 20 : 2 }}
             />
           </button>
         </label>

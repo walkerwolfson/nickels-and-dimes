@@ -17,9 +17,11 @@ export const getProfile = cache(async (userId: string) => {
     heightCm: null,
     weightKg: null,
     birthday: null,
+    hometown: null,
     units: "LB" as const,
     fontSize: "MEDIUM" as const,
     marketingOptIn: false,
+    showPRs: false,
     createdAt: new Date(),
   };
 });

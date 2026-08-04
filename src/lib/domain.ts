@@ -18,6 +18,7 @@ export const EXERCISES: Exercise[] = [
   { id: "lunges", name: "Lunges", unit: "reps" },
   { id: "pistols", name: "Pistol squats", unit: "reps" },
   { id: "planks", name: "Planks", unit: "time" },
+  { id: "deadhang", name: "Dead-Hang", unit: "time" },
   { id: "legraises", name: "Leg raises", unit: "reps" },
   { id: "rows", name: "Inverted rows", unit: "reps" },
   { id: "pike", name: "Pike push-ups", unit: "reps" },
