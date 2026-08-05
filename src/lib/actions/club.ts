@@ -14,7 +14,7 @@ export async function joinClub(clubId: string): Promise<void> {
   revalidatePath("/club");
 }
 
-export async function createClub(name: string): Promise<{ id: string }> {
+export async function createClub(name: string, isPublic: boolean): Promise<{ id: string }> {
   const userId = await getCurrentUserId();
   const trimmed = name.trim();
   if (!trimmed) throw new Error("Club name can't be empty.");
@@ -23,7 +23,7 @@ export async function createClub(name: string): Promise<{ id: string }> {
     data: {
       name: trimmed,
       createdById: userId,
-      isPublic: true,
+      isPublic,
       memberships: { create: { userId } },
     },
   });

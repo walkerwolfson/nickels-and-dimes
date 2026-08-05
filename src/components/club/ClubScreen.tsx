@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Share2, Check } from "lucide-react";
+import { Share2, Check, Lock } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { Dropdown } from "@/components/Dropdown";
 import { Avatar } from "@/components/Avatar";
@@ -96,8 +96,8 @@ export function ClubScreen({
     navigate({ club: club.id, view: null, q: null });
   }
 
-  async function handleCreate(name: string) {
-    const { id } = await createClub(name);
+  async function handleCreate(name: string, isPublic: boolean) {
+    const { id } = await createClub(name, isPublic);
     navigate({ club: id, view: null, q: null });
   }
 
@@ -118,13 +118,14 @@ export function ClubScreen({
                 <button
                   key={c.id}
                   onClick={() => navigate({ club: c.id })}
-                  className="flex-shrink-0 rounded-[20px] border px-4 py-2 font-data text-xs font-bold"
+                  className="flex flex-shrink-0 items-center gap-1.5 rounded-[20px] border px-4 py-2 font-data text-xs font-bold"
                   style={{
                     background: active ? "var(--purple)" : "var(--surface)",
                     color: active ? "#fff" : "var(--text-dim)",
                     borderColor: active ? "var(--purple)" : "var(--border)",
                   }}
                 >
+                  {!c.isPublic && <Lock size={11} color={active ? "#fff" : "var(--text-faint)"} />}
                   {c.name}
                 </button>
               );
@@ -182,54 +183,70 @@ export function ClubScreen({
             )}
           </div>
 
-          {myRow && (
-            <div className="mt-2 flex flex-col items-center border-b border-border px-5 py-5">
-              <span className="font-display text-[44px] text-text">
-                {exObj.unit === "time" ? fmtTime(myRow.value) : myRow.value.toLocaleString()}
+          {board.every((p) => p.value === 0) ? (
+            <div className="mt-10 flex flex-col items-center gap-2 px-5 text-center">
+              <span className="font-display text-lg uppercase text-text">No data to show</span>
+              <span className="text-[13px] text-text-dim">
+                Nobody in this club has logged {exObj.name.toLowerCase()}
+                {exObj.unit === "reps" ? ` ${range.toLowerCase()}` : ""} yet.
               </span>
-              <span className="font-data text-xs tracking-wide text-text-dim">
-                {exObj.name.toUpperCase()} {exObj.unit === "time" ? "· BEST HOLD" : `· ${range.toUpperCase()}`}
-              </span>
-              <span className="mt-2.5 font-display text-lg uppercase text-purple-deep">
-                {myIndex === 0 ? "1st place" : `${myIndex + 1}${ORDINAL(myIndex + 1)} place`}
-              </span>
-              {ahead && (
-                <span className="mt-0.5 font-data text-xs text-text-faint">
-                  {exObj.unit === "time"
-                    ? `${fmtTime(ahead.value - myRow.value)} behind ${ahead.name}`
-                    : `${(ahead.value - myRow.value).toLocaleString()} reps behind ${ahead.name}`}
-                </span>
-              )}
             </div>
-          )}
+          ) : (
+            <>
+              {myRow && (
+                <div className="mt-2 flex flex-col items-center border-b border-border px-5 py-5">
+                  <span className="font-display text-[44px] text-text">
+                    {exObj.unit === "time" ? fmtTime(myRow.value) : myRow.value.toLocaleString()}
+                  </span>
+                  <span className="font-data text-xs tracking-wide text-text-dim">
+                    {exObj.name.toUpperCase()} {exObj.unit === "time" ? "· BEST HOLD" : `· ${range.toUpperCase()}`}
+                  </span>
+                  <span className="mt-2.5 font-display text-lg uppercase text-purple-deep">
+                    {myIndex === 0 ? "1st place" : `${myIndex + 1}${ORDINAL(myIndex + 1)} place`}
+                  </span>
+                  {ahead && (
+                    <span className="mt-0.5 font-data text-xs text-text-faint">
+                      {exObj.unit === "time"
+                        ? `${fmtTime(ahead.value - myRow.value)} behind ${ahead.name}`
+                        : `${(ahead.value - myRow.value).toLocaleString()} reps behind ${ahead.name}`}
+                    </span>
+                  )}
+                </div>
+              )}
 
-          <div className="mt-4 flex flex-col gap-1 px-5">
-            {board.map((p, i) => {
-              const isMe = p.userId === userId;
-              return (
-                <Link
-                  key={p.userId}
-                  href={`/u/${p.userId}`}
-                  className="flex items-center gap-3 rounded-[10px] py-3 pl-2.5 pr-2.5"
-                  style={{ background: isMe ? "var(--purple-soft)" : "transparent" }}
-                >
-                  <span
-                    className="font-display text-lg"
-                    style={{ width: 22, color: i < 3 ? "var(--purple-deep)" : "var(--text-faint)" }}
-                  >
-                    {i + 1}
-                  </span>
-                  <Avatar initials={p.name.split(" ").map((s) => s[0]).slice(0, 2).join("")} color={p.color} size={36} />
-                  <span className="flex-1 text-sm text-text" style={{ fontWeight: isMe ? 700 : 400 }}>
-                    {p.name}
-                  </span>
-                  <span className="font-data text-[13px] text-text-dim">
-                    {exObj.unit === "time" ? fmtTime(p.value) : p.value.toLocaleString()}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+              <div className="mt-4 flex flex-col gap-1 px-5">
+                {board.map((p, i) => {
+                  const isMe = p.userId === userId;
+                  return (
+                    <Link
+                      key={p.userId}
+                      href={`/u/${p.userId}`}
+                      className="flex items-center gap-3 rounded-[10px] py-3 pl-2.5 pr-2.5"
+                      style={{ background: isMe ? "var(--purple-soft)" : "transparent" }}
+                    >
+                      <span
+                        className="font-display text-lg"
+                        style={{ width: 22, color: i < 3 ? "var(--purple-deep)" : "var(--text-faint)" }}
+                      >
+                        {i + 1}
+                      </span>
+                      <Avatar
+                        initials={p.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
+                        color={p.color}
+                        size={36}
+                      />
+                      <span className="flex-1 text-sm text-text" style={{ fontWeight: isMe ? 700 : 400 }}>
+                        {p.name}
+                      </span>
+                      <span className="font-data text-[13px] text-text-dim">
+                        {exObj.unit === "time" ? fmtTime(p.value) : p.value.toLocaleString()}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </>
       )}
 

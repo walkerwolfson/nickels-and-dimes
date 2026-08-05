@@ -3,7 +3,7 @@ import { colorForUser } from "@/lib/user-colors";
 import { EXERCISE_BY_ID } from "@/lib/domain";
 import { zonedMonthStart, zonedYearStart } from "@/lib/timezone";
 
-export type ClubSummary = { id: string; name: string; memberCount: number };
+export type ClubSummary = { id: string; name: string; memberCount: number; isPublic: boolean };
 
 export async function getMyClubs(userId: string): Promise<ClubSummary[]> {
   const memberships = await prisma.clubMembership.findMany({
@@ -15,6 +15,7 @@ export async function getMyClubs(userId: string): Promise<ClubSummary[]> {
     id: m.club.id,
     name: m.club.name,
     memberCount: m.club._count.memberships,
+    isPublic: m.club.isPublic,
   }));
 }
 
@@ -24,21 +25,23 @@ export async function getClubById(clubId: string): Promise<ClubSummary | null> {
     include: { _count: { select: { memberships: true } } },
   });
   if (!club) return null;
-  return { id: club.id, name: club.name, memberCount: club._count.memberships };
+  return { id: club.id, name: club.name, memberCount: club._count.memberships, isPublic: club.isPublic };
 }
 
+// Without a search query this only lists public clubs (the browsable "discover" list).
+// With a query, private clubs are searchable by name too — findable, just not browsable —
+// matching the brief: private clubs are joinable only by exact/partial name search or invite link.
 export async function getDiscoverableClubs(userId: string, query: string): Promise<ClubSummary[]> {
   const clubs = await prisma.club.findMany({
     where: {
-      isPublic: true,
-      ...(query ? { name: { contains: query, mode: "insensitive" } } : {}),
       memberships: { none: { userId } },
+      ...(query ? { name: { contains: query, mode: "insensitive" } } : { isPublic: true }),
     },
     include: { _count: { select: { memberships: true } } },
     orderBy: { createdAt: "desc" },
     take: 30,
   });
-  return clubs.map((c) => ({ id: c.id, name: c.name, memberCount: c._count.memberships }));
+  return clubs.map((c) => ({ id: c.id, name: c.name, memberCount: c._count.memberships, isPublic: c.isPublic }));
 }
 
 export const LEADERBOARD_RANGES = ["This month", "Last month", "This year", "Last year", "All time"] as const;

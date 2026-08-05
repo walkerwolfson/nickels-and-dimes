@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { X, Lock } from "lucide-react";
 import type { ClubSummary } from "@/lib/data/club";
 
 export function DiscoverClubs({
@@ -57,7 +57,10 @@ export function DiscoverClubs({
             className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3"
           >
             <div className="flex flex-col">
-              <span className="text-[15px] font-bold text-text">{c.name}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[15px] font-bold text-text">{c.name}</span>
+                {!c.isPublic && <Lock size={11} color="var(--text-faint)" />}
+              </div>
               <span className="font-data text-[11px] text-text-faint">
                 {c.memberCount.toLocaleString()} member{c.memberCount === 1 ? "" : "s"}
               </span>
