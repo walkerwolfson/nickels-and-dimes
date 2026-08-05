@@ -6,6 +6,7 @@ import { Mail } from "lucide-react";
 import { sendMagicLink, completeOtpLogin, type AuthState } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
+import { MicrosoftIcon } from "@/components/auth/MicrosoftIcon";
 
 const initialState: AuthState = {};
 
@@ -68,15 +69,15 @@ function CodeEntry({ email }: { email: string }) {
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(sendMagicLink, initialState);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
-  const [googlePending, setGooglePending] = useState(false);
+  const [oauthPending, setOauthPending] = useState<"google" | "azure" | null>(null);
   const [email, setEmail] = useState("");
 
-  async function handleGoogle() {
-    setGooglePending(true);
+  async function handleOAuth(provider: "google" | "azure") {
+    setOauthPending(provider);
     document.cookie = `marketing_opt_in=${marketingOptIn}; path=/; max-age=600`;
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
   }
@@ -152,13 +153,23 @@ export function LoginForm() {
       </div>
 
       <button
-        onClick={handleGoogle}
-        disabled={googlePending}
+        onClick={() => handleOAuth("google")}
+        disabled={oauthPending !== null}
         className="flex items-center justify-center gap-2.5 border-[1.5px] border-border bg-surface py-3.5 text-[14px] font-semibold text-text"
-        style={{ borderRadius: 12, opacity: googlePending ? 0.6 : 1 }}
+        style={{ borderRadius: 12, opacity: oauthPending !== null ? 0.6 : 1 }}
       >
         <GoogleIcon />
-        {googlePending ? "Redirecting…" : "Continue with Google"}
+        {oauthPending === "google" ? "Redirecting…" : "Continue with Google"}
+      </button>
+
+      <button
+        onClick={() => handleOAuth("azure")}
+        disabled={oauthPending !== null}
+        className="flex items-center justify-center gap-2.5 border-[1.5px] border-border bg-surface py-3.5 text-[14px] font-semibold text-text"
+        style={{ borderRadius: 12, opacity: oauthPending !== null ? 0.6 : 1 }}
+      >
+        <MicrosoftIcon />
+        {oauthPending === "azure" ? "Redirecting…" : "Continue with Microsoft"}
       </button>
     </div>
   );
