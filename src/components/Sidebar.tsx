@@ -2,7 +2,31 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { X, User, Settings, Globe, ChevronRight } from "lucide-react";
+import { X, User, Settings, Globe, ChevronRight, Smartphone } from "lucide-react";
+
+function AddToHomeScreenModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 px-6" style={{ background: "rgba(20,18,35,0.92)" }}>
+      <button onClick={onClose} className="absolute right-5 top-6 text-white">
+        <X size={24} />
+      </button>
+      <span className="font-display text-lg uppercase text-white">Add to Home Screen</span>
+      <video
+        src="/help/add-to-home-screen.mp4"
+        controls
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="w-full max-w-[280px] rounded-[16px]"
+        style={{ border: "3px solid #fff" }}
+      />
+      <span className="max-w-xs text-center text-[13px] text-white/70">
+        Tap the share icon in your browser, then tap &quot;Add to Home Screen.&quot;
+      </span>
+    </div>
+  );
+}
 
 export function Sidebar({
   children,
@@ -12,6 +36,7 @@ export function Sidebar({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   return (
     <>
@@ -61,6 +86,18 @@ export function Sidebar({
             <span className="text-[14px] font-semibold">Settings</span>
             <ChevronRight size={15} className="ml-auto text-text-faint" />
           </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              setShowVideo(true);
+            }}
+            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-left text-text"
+          >
+            <Smartphone size={18} color="var(--purple-deep)" />
+            <span className="text-[14px] font-semibold">Add to Home Screen</span>
+            <ChevronRight size={15} className="ml-auto text-text-faint" />
+          </button>
 
           <div className="mt-2 flex items-center gap-3 rounded-[10px] px-3 py-3" style={{ opacity: 0.5 }}>
             <Globe size={18} color="var(--text-faint)" />
@@ -71,6 +108,8 @@ export function Sidebar({
           </div>
         </nav>
       </div>
+
+      {showVideo && <AddToHomeScreenModal onClose={() => setShowVideo(false)} />}
     </>
   );
 }
