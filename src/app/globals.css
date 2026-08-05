@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 :root {
   --bg: #eef0fb;
   --surface: #ffffff;
