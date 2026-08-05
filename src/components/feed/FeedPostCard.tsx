@@ -2,18 +2,41 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Heart, MessageCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
-import { toggleLike, addComment, getComments, type CommentItem } from "@/lib/actions/feed";
+import { toggleLike, addComment, getComments, deleteWorkoutLog, type CommentItem } from "@/lib/actions/feed";
 import type { FeedPost } from "@/lib/data/feed";
 
-export function FeedPostCard({ post }: { post: FeedPost }) {
+export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: boolean }) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
   const [comments, setComments] = useState<CommentItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [body, setBody] = useState("");
   const [commentCount, setCommentCount] = useState(post.comments);
   const [pending, startTransition] = useTransition();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+
+  function handleDelete() {
+    setDeleting(true);
+    startTransition(async () => {
+      const { error } = await deleteWorkoutLog(post.id);
+      if (error) {
+        setDeleting(false);
+        setConfirmingDelete(false);
+        setMenuOpen(false);
+        return;
+      }
+      setDeleted(true);
+      router.refresh();
+    });
+  }
+
+  if (deleted) return null;
 
   async function toggleExpanded() {
     const next = !expanded;
@@ -38,19 +61,82 @@ export function FeedPostCard({ post }: { post: FeedPost }) {
   }
 
   return (
-    <div className="rounded-[10px] border-[1.5px] border-border bg-surface p-4">
-      <Link href={`/u/${post.userId}`} className="flex items-center gap-3">
-        {post.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={post.photoUrl} alt="" className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
-        ) : (
-          <Avatar initials={post.initials} color={post.color} />
+    <div className="relative rounded-[10px] border-[1.5px] border-border bg-surface p-4">
+      <div className="flex items-start justify-between gap-2">
+        <Link href={`/u/${post.userId}`} className="flex flex-1 items-center gap-3">
+          {post.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={post.photoUrl} alt="" className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
+          ) : (
+            <Avatar initials={post.initials} color={post.color} />
+          )}
+          <div className="flex-1">
+            <div className="text-sm font-bold text-text">{post.person}</div>
+            <div className="font-data text-[11px] text-text-faint">{post.time}</div>
+          </div>
+        </Link>
+
+        {isOwnPost && (
+          <div className="relative flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex h-7 w-7 items-center justify-center text-text-faint"
+            >
+              <MoreHorizontal size={18} />
+            </button>
+
+            {menuOpen && !confirmingDelete && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div
+                  className="absolute right-0 top-8 z-20 overflow-hidden rounded-[10px] border-[1.5px] border-border bg-surface shadow-lg"
+                  style={{ minWidth: 140 }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingDelete(true)}
+                    className="w-full px-4 py-3 text-left text-[13px] font-semibold text-pink"
+                  >
+                    Delete post
+                  </button>
+                </div>
+              </>
+            )}
+
+            {menuOpen && confirmingDelete && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setConfirmingDelete(false)} />
+                <div
+                  className="absolute right-0 top-8 z-20 flex flex-col gap-2.5 rounded-[10px] border-[1.5px] border-border bg-surface p-3.5 shadow-lg"
+                  style={{ width: 200 }}
+                >
+                  <span className="text-[12.5px] text-text">Delete this post? This can&apos;t be undone.</span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingDelete(false)}
+                      className="flex-1 rounded-[8px] py-2 font-data text-[11px] font-bold text-text-dim"
+                      style={{ background: "var(--bg)" }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="flex-1 rounded-[8px] py-2 font-data text-[11px] font-bold text-white"
+                      style={{ background: "var(--pink)", opacity: deleting ? 0.6 : 1 }}
+                    >
+                      {deleting ? "…" : "Delete"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         )}
-        <div className="flex-1">
-          <div className="text-sm font-bold text-text">{post.person}</div>
-          <div className="font-data text-[11px] text-text-faint">{post.time}</div>
-        </div>
-      </Link>
+      </div>
 
       <div className="mt-3 flex flex-col gap-1">
         {post.lines.map((l, i) => (

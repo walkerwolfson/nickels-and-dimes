@@ -105,12 +105,10 @@ export default async function HomePage() {
       <div className="mt-3 flex flex-col gap-3 px-5">
         {feed.length === 0 ? (
           <div className="rounded-[10px] border-[1.5px] border-border bg-surface p-4 text-center">
-            <span className="text-[13px] text-text-dim">
-              No activity yet. Join or start a club to see posts here from people you train with.
-            </span>
+            <span className="text-[13px] text-text-dim">No activity yet. Log a set to get things started.</span>
           </div>
         ) : (
-          feed.map((post) => <FeedPostCard key={post.id} post={post} />)
+          feed.map((post) => <FeedPostCard key={post.id} post={post} isOwnPost={post.userId === userId} />)
         )}
       </div>
     </div>

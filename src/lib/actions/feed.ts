@@ -64,3 +64,47 @@ export async function addComment(workoutLogId: string, body: string): Promise<vo
   await prisma.feedComment.create({ data: { workoutLogId, userId, body: trimmed } });
   revalidatePath("/home");
 }
+
+export async function deleteWorkoutLog(workoutLogId: string): Promise<{ error?: string }> {
+  const userId = await getCurrentUserId();
+
+  const log = await prisma.workoutLog.findUnique({
+    where: { id: workoutLogId },
+    select: { userId: true, entries: { select: { exerciseId: true } } },
+  });
+  if (!log) return {};
+  if (log.userId !== userId) {
+    return { error: "You can only delete your own posts." };
+  }
+
+  const exerciseIds = [...new Set(log.entries.map((e) => e.exerciseId))];
+
+  // Deleting the log cascades its LogEntry/FeedLike/FeedComment rows, but the
+  // separate PersonalRecord cache needs recomputing in case this log held the PR.
+  await prisma.workoutLog.delete({ where: { id: workoutLogId } });
+
+  await Promise.all(
+    exerciseIds.map(async (exerciseId) => {
+      const remaining = await prisma.logEntry.findMany({
+        where: { exerciseId, workoutLog: { userId } },
+        select: { value: true },
+      });
+      if (remaining.length === 0) {
+        await prisma.personalRecord.deleteMany({ where: { userId, exerciseId } });
+        return;
+      }
+      const best = Math.max(...remaining.map((e) => e.value));
+      await prisma.personalRecord.upsert({
+        where: { userId_exerciseId: { userId, exerciseId } },
+        create: { userId, exerciseId, value: best },
+        update: { value: best },
+      });
+    })
+  );
+
+  revalidatePath("/home");
+  revalidatePath("/history");
+  revalidatePath("/prs");
+  revalidatePath("/club");
+  return {};
+}
