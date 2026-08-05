@@ -231,11 +231,16 @@ export function ClubScreen({
                       >
                         {i + 1}
                       </span>
-                      <Avatar
-                        initials={p.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
-                        color={p.color}
-                        size={36}
-                      />
+                      {p.photoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.photoUrl} alt="" className="h-9 w-9 flex-shrink-0 rounded-full object-cover" />
+                      ) : (
+                        <Avatar
+                          initials={p.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
+                          color={p.color}
+                          size={36}
+                        />
+                      )}
                       <span className="flex-1 text-sm text-text" style={{ fontWeight: isMe ? 700 : 400 }}>
                         {p.name}
                       </span>

@@ -63,7 +63,7 @@ function rangeBounds(range: LeaderboardRange): { gte?: Date; lt?: Date } {
   }
 }
 
-export type LeaderboardRow = { userId: string; name: string; color: string; value: number };
+export type LeaderboardRow = { userId: string; name: string; photoUrl: string | null; color: string; value: number };
 
 export async function getClubLeaderboard(
   clubId: string,
@@ -105,6 +105,7 @@ export async function getClubLeaderboard(
     .map((m) => ({
       userId: m.userId,
       name: m.profile.displayName,
+      photoUrl: m.profile.photoUrl,
       color: colorForUser(m.userId),
       value: totals.get(m.userId) ?? 0,
     }))
