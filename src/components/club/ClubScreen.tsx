@@ -159,14 +159,7 @@ export function ClubScreen({
             Find a public club to join, or start your own — it begins solo until others join.
           </span>
         </div>
-      ) : !selectedClub ? null : board.length <= 1 ? (
-        <div className="mt-10 flex flex-col items-center gap-2 px-5 text-center">
-          <span className="font-display text-xl uppercase text-text">{selectedClub.name}</span>
-          <span className="text-[13px] text-text-dim">
-            It&apos;s just you in here so far. Invite friends to start a leaderboard.
-          </span>
-        </div>
-      ) : (
+      ) : !selectedClub ? null : (
         <>
           <div className="mt-4 flex gap-2 px-5">
             <div className="flex-1">
@@ -211,6 +204,14 @@ export function ClubScreen({
                         : `${(ahead.value - myRow.value).toLocaleString()} reps behind ${ahead.name}`}
                     </span>
                   )}
+                </div>
+              )}
+
+              {board.length === 1 && (
+                <div className="mt-4 px-5 text-center">
+                  <span className="text-[12.5px] text-text-faint">
+                    Invite friends to this club to start a real leaderboard.
+                  </span>
                 </div>
               )}
 
