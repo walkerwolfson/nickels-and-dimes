@@ -30,7 +30,7 @@ const inter = Inter({
 const TAGLINE = "Stop logging push-ups in your Notes app.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nickels-and-dimes.vercel.app"),
+  metadataBase: new URL("https://nickelsanddimes.app"),
   title: "Nickels & Dimes",
   description: TAGLINE,
   appleWebApp: {
