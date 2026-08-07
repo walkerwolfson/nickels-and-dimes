@@ -69,7 +69,7 @@ export function LandingCarousel() {
         className="no-scrollbar flex w-full overflow-x-auto"
         style={{ scrollSnapType: "x mandatory" }}
       >
-        <SlideFrame label="PRIVATE LEADERBOARDS" headline="Compete with your crew">
+        <SlideFrame label="PUBLIC/PRIVATE CLUBS" headline="Compete with your crew">
           <div className="flex flex-col gap-0.5">
             {CLUB_ROWS.map((p, i) => (
               <div key={p.name} className="flex items-center gap-3 py-2">
