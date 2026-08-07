@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Plus, Check } from "lucide-react";
+import { X, Plus, Check, ChevronRight, Clock } from "lucide-react";
 import { AddExercise } from "@/components/log/AddExercise";
 import { AddWod } from "@/components/log/AddWod";
 import { fmtDateTime } from "@/lib/domain";
@@ -13,22 +13,43 @@ export type SessionItem = {
   label: string;
   totalReps: number;
   breakdown: Record<string, { name: string; unit: "reps" | "time"; value: number }>;
+  source:
+    | { kind: "exercise"; exerciseId: string; repInput: string; hours: string; minutes: string; seconds: string; showTime: boolean }
+    | { kind: "wod"; wodId: string; rounds: string; partial: Record<string, string> };
 };
 
 export function LogFlow() {
   const router = useRouter();
   const [session, setSession] = useState<SessionItem[]>([]);
   const [adding, setAdding] = useState<"exercise" | "wod" | null>(null);
+  const [editingItem, setEditingItem] = useState<SessionItem | null>(null);
   const [posting, setPosting] = useState(false);
   const [done, setDone] = useState(false);
 
-  function addItem(item: SessionItem) {
-    setSession((s) => [...s, item]);
+  const [showDuration, setShowDuration] = useState(false);
+  const [durHours, setDurHours] = useState("");
+  const [durMinutes, setDurMinutes] = useState("");
+  const [durSeconds, setDurSeconds] = useState("");
+
+  function saveItem(item: SessionItem) {
+    setSession((s) => {
+      const idx = s.findIndex((i) => i.id === item.id);
+      if (idx === -1) return [...s, item];
+      const copy = [...s];
+      copy[idx] = item;
+      return copy;
+    });
     setAdding(null);
+    setEditingItem(null);
   }
 
   function removeItem(id: string) {
     setSession((s) => s.filter((i) => i.id !== id));
+  }
+
+  function editItem(item: SessionItem) {
+    setEditingItem(item);
+    setAdding(item.source.kind);
   }
 
   async function post() {
@@ -41,10 +62,13 @@ export function LogFlow() {
         breakdown[exId].value += info.value;
       });
     });
+    const durationSec =
+      parseInt(durHours || "0", 10) * 3600 + parseInt(durMinutes || "0", 10) * 60 + parseInt(durSeconds || "0", 10);
     await postWorkout({
       lines: session.map((i) => i.label),
       totalReps: session.reduce((s, i) => s + i.totalReps, 0),
       breakdown,
+      durationSec: durationSec > 0 ? durationSec : undefined,
     });
     setDone(true);
     setTimeout(() => router.push("/home"), 900);
@@ -82,15 +106,27 @@ export function LogFlow() {
             ) : (
               <div className="flex flex-col gap-2">
                 {session.map((item) => (
-                  <div
+                  <button
                     key={item.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3"
+                    onClick={() => editItem(item)}
+                    className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-left"
                   >
                     <span className="text-sm font-semibold text-text">{item.label}</span>
-                    <button onClick={() => removeItem(item.id)} className="text-text-faint">
-                      <X size={16} />
-                    </button>
-                  </div>
+                    <div className="flex items-center gap-3">
+                      <ChevronRight size={15} className="text-text-faint" />
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeItem(item.id);
+                        }}
+                        className="text-text-faint"
+                      >
+                        <X size={16} />
+                      </span>
+                    </div>
+                  </button>
                 ))}
               </div>
             )}
@@ -111,6 +147,48 @@ export function LogFlow() {
                 <Plus size={14} /> Add named workout
               </button>
             </div>
+
+            <div className="mt-6">
+              {!showDuration ? (
+                <button
+                  onClick={() => setShowDuration(true)}
+                  className="flex items-center gap-1.5 font-data text-xs text-text-faint"
+                >
+                  <Clock size={13} /> Add total workout time (optional)
+                </button>
+              ) : (
+                <div className="rounded-xl border border-border bg-surface px-4 py-3.5">
+                  <span className="font-data text-[11px] tracking-wide text-text-dim">
+                    TOTAL TIME FOR THIS WORKOUT <span className="text-text-faint">— OPTIONAL</span>
+                  </span>
+                  <div className="mt-2 flex items-center justify-center gap-1.5">
+                    {[
+                      { v: durHours, set: setDurHours, ph: "0" },
+                      { v: durMinutes, set: setDurMinutes, ph: "00" },
+                      { v: durSeconds, set: setDurSeconds, ph: "00" },
+                    ].map((f, i) => (
+                      <div key={i} className="flex items-center gap-1.5">
+                        {i > 0 && <span className="font-display text-2xl text-text-dim">:</span>}
+                        <input
+                          autoFocus={i === 0}
+                          value={f.v}
+                          onChange={(e) => f.set(e.target.value.replace(/[^0-9]/g, ""))}
+                          placeholder={f.ph}
+                          className="w-12 rounded-lg border border-border bg-bg py-1.5 text-center font-display text-2xl text-text"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-1 flex items-center justify-center gap-1.5">
+                    {["HRS", "MIN", "SEC"].map((l, i) => (
+                      <span key={l} className={`w-12 text-center font-data text-[9px] text-text-faint ${i > 0 ? "ml-1.5" : ""}`}>
+                        {l}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <button
@@ -124,8 +202,26 @@ export function LogFlow() {
         </>
       )}
 
-      {adding === "exercise" && <AddExercise onAdd={addItem} onClose={() => setAdding(null)} />}
-      {adding === "wod" && <AddWod onAdd={addItem} onClose={() => setAdding(null)} />}
+      {adding === "exercise" && (
+        <AddExercise
+          initial={editingItem && editingItem.source.kind === "exercise" ? { ...editingItem, source: editingItem.source } : null}
+          onAdd={saveItem}
+          onClose={() => {
+            setAdding(null);
+            setEditingItem(null);
+          }}
+        />
+      )}
+      {adding === "wod" && (
+        <AddWod
+          initial={editingItem && editingItem.source.kind === "wod" ? { ...editingItem, source: editingItem.source } : null}
+          onAdd={saveItem}
+          onClose={() => {
+            setAdding(null);
+            setEditingItem(null);
+          }}
+        />
+      )}
     </div>
   );
 }

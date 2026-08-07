@@ -2,22 +2,27 @@
 
 import { useState } from "react";
 import { X, ChevronRight, Plus } from "lucide-react";
-import { EXERCISES, fmtTime, type Exercise } from "@/lib/domain";
+import { EXERCISES, EXERCISE_BY_ID, fmtTime, type Exercise } from "@/lib/domain";
 import type { SessionItem } from "@/components/log/LogFlow";
 
+type ExerciseSource = Extract<SessionItem["source"], { kind: "exercise" }>;
+
 export function AddExercise({
+  initial,
   onAdd,
   onClose,
 }: {
+  initial?: (SessionItem & { source: ExerciseSource }) | null;
   onAdd: (item: SessionItem) => void;
   onClose: () => void;
 }) {
-  const [selected, setSelected] = useState<Exercise | null>(null);
-  const [repInput, setRepInput] = useState("");
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("");
-  const [seconds, setSeconds] = useState("");
-  const [showTime, setShowTime] = useState(false);
+  const initialExercise = initial ? EXERCISE_BY_ID[initial.source.exerciseId] ?? null : null;
+  const [selected, setSelected] = useState<Exercise | null>(initialExercise);
+  const [repInput, setRepInput] = useState(initial?.source.repInput ?? "");
+  const [hours, setHours] = useState(initial?.source.hours ?? "");
+  const [minutes, setMinutes] = useState(initial?.source.minutes ?? "");
+  const [seconds, setSeconds] = useState(initial?.source.seconds ?? "");
+  const [showTime, setShowTime] = useState(initial?.source.showTime ?? false);
 
   if (!selected) {
     return (
@@ -50,21 +55,24 @@ export function AddExercise({
 
   function handleAdd() {
     if (!selected) return;
+    const id = initial?.id ?? crypto.randomUUID();
     if (selected.unit === "reps") {
       const reps = parseInt(repInput || "0", 10);
       const label = durationSec > 0 ? `${reps} ${selected.name} · ${fmtTime(durationSec)}` : `${reps} ${selected.name}`;
       onAdd({
-        id: crypto.randomUUID(),
+        id,
         label,
         totalReps: reps,
         breakdown: { [selected.id]: { name: selected.name, unit: "reps", value: reps } },
+        source: { kind: "exercise", exerciseId: selected.id, repInput, hours, minutes, seconds, showTime },
       });
     } else {
       onAdd({
-        id: crypto.randomUUID(),
+        id,
         label: `${selected.name} — ${fmtTime(durationSec)}`,
         totalReps: 0,
         breakdown: { [selected.id]: { name: selected.name, unit: "time", value: durationSec } },
+        source: { kind: "exercise", exerciseId: selected.id, repInput, hours, minutes, seconds, showTime },
       });
     }
   }
@@ -171,7 +179,7 @@ export function AddExercise({
         className="mx-5 mt-auto mb-8 py-4 font-display text-base uppercase text-white"
         style={{ background: "var(--purple)", borderRadius: 12, opacity: canSubmit ? 1 : 0.4 }}
       >
-        Add to workout
+        {initial ? "Save changes" : "Add to workout"}
       </button>
     </div>
   );

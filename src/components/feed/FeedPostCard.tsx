@@ -7,6 +7,7 @@ import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { toggleLike, addComment, getComments, deleteWorkoutLog, type CommentItem } from "@/lib/actions/feed";
 import type { FeedPost } from "@/lib/data/feed";
+import { fmtTime } from "@/lib/domain";
 
 export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: boolean }) {
   const router = useRouter();
@@ -145,6 +146,9 @@ export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: b
           </span>
         ))}
       </div>
+      {post.durationSec != null && post.durationSec > 0 && (
+        <span className="mt-1 font-data text-[11px] text-text-faint">Workout time {fmtTime(post.durationSec)}</span>
+      )}
 
       <div className="mt-3 flex items-center gap-4 text-text-dim">
         <form action={toggleLike.bind(null, post.id)}>

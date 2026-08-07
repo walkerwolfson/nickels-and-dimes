@@ -2,19 +2,24 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-import { WODS, EXERCISE_BY_ID, type Wod } from "@/lib/domain";
+import { WODS, WOD_BY_ID, EXERCISE_BY_ID, type Wod } from "@/lib/domain";
 import type { SessionItem } from "@/components/log/LogFlow";
 
+type WodSource = Extract<SessionItem["source"], { kind: "wod" }>;
+
 export function AddWod({
+  initial,
   onAdd,
   onClose,
 }: {
+  initial?: (SessionItem & { source: WodSource }) | null;
   onAdd: (item: SessionItem) => void;
   onClose: () => void;
 }) {
-  const [selected, setSelected] = useState<Wod | null>(null);
-  const [rounds, setRounds] = useState("");
-  const [partial, setPartial] = useState<Record<string, string>>({});
+  const initialWod = initial ? WOD_BY_ID[initial.source.wodId] ?? null : null;
+  const [selected, setSelected] = useState<Wod | null>(initialWod);
+  const [rounds, setRounds] = useState(initial?.source.rounds ?? "");
+  const [partial, setPartial] = useState<Record<string, string>>(initial?.source.partial ?? {});
 
   if (!selected) {
     return (
@@ -58,7 +63,13 @@ export function AddWod({
     Object.entries(totals).forEach(([exId, reps]) => {
       breakdown[exId] = { name: EXERCISE_BY_ID[exId]?.name ?? exId, unit: "reps", value: reps };
     });
-    onAdd({ id: crypto.randomUUID(), label, totalReps, breakdown });
+    onAdd({
+      id: initial?.id ?? crypto.randomUUID(),
+      label,
+      totalReps,
+      breakdown,
+      source: { kind: "wod", wodId: selected.id, rounds, partial },
+    });
   }
 
   const canSubmit = selected.fixed || !!rounds;
@@ -119,7 +130,7 @@ export function AddWod({
         className="mx-5 mb-8 py-4 font-display text-base uppercase text-white"
         style={{ background: "var(--purple)", borderRadius: 12, opacity: canSubmit ? 1 : 0.4 }}
       >
-        Add to workout
+        {initial ? "Save changes" : "Add to workout"}
       </button>
     </div>
   );

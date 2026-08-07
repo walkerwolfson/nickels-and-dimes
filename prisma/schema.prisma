@@ -49,9 +49,10 @@ model WorkoutLog {
   id        String   @id @default(cuid())
   userId    String   @db.Uuid
   profile   Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lines     String[] // display lines, e.g. "200 Push-ups", "Nickels and Dimes — 12 rounds"
-  totalReps Int      @default(0)
-  loggedAt  DateTime @default(now()) // when the workout happened (always "now" at post time)
+  lines       String[] // display lines, e.g. "200 Push-ups", "Nickels and Dimes — 12 rounds"
+  totalReps   Int      @default(0)
+  durationSec Int? // total time for the whole session, optional, distinct from any per-exercise timing
+  loggedAt    DateTime @default(now()) // when the workout happened (always "now" at post time)
   createdAt DateTime @default(now())
 
   entries  LogEntry[]

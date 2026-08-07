@@ -8,6 +8,7 @@ export type PostWorkoutInput = {
   lines: string[];
   totalReps: number;
   breakdown: Record<string, { name: string; unit: "reps" | "time"; value: number }>;
+  durationSec?: number;
 };
 
 export async function postWorkout(input: PostWorkoutInput): Promise<void> {
@@ -24,6 +25,7 @@ export async function postWorkout(input: PostWorkoutInput): Promise<void> {
       userId,
       lines: input.lines,
       totalReps: input.totalReps,
+      durationSec: input.durationSec,
       entries: {
         create: Object.entries(input.breakdown).map(([exerciseId, info]) => ({
           exerciseId,
