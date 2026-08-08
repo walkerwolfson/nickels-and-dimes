@@ -27,7 +27,7 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const TAGLINE = "Stop logging push-ups in your Notes app.";
+const TAGLINE = "Log Reps, Chase PRs, and Compete With Friends";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nickelsanddimes.app"),
