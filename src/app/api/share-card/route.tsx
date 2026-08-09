@@ -25,6 +25,7 @@ function BarbellMark({ width, height }: { width: number; height: number }) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const date = (searchParams.get("date") || "").slice(0, 40);
+  const duration = (searchParams.get("duration") || "").slice(0, 20);
   const lines = (searchParams.get("lines") || "")
     .split("|")
     .map((l) => l.trim())
@@ -56,6 +57,12 @@ export async function GET(request: Request) {
             </div>
           ))}
         </div>
+
+        {duration && (
+          <div style={{ display: "flex", fontSize: 26, color: "#CBBBF5", marginTop: 28 }}>
+            Workout time {duration}
+          </div>
+        )}
 
         <div style={{ display: "flex", flex: 1 }} />
 

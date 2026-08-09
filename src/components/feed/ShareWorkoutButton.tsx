@@ -2,14 +2,24 @@
 
 import { useState } from "react";
 import { Share2, Check } from "lucide-react";
+import { fmtTime } from "@/lib/domain";
 
-export function ShareWorkoutButton({ lines, time }: { lines: string[]; time: string }) {
+export function ShareWorkoutButton({
+  lines,
+  time,
+  durationSec,
+}: {
+  lines: string[];
+  time: string;
+  durationSec?: number | null;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
     const url = "https://nickelsanddimes.app";
     const text = `Just logged ${lines.join(", ")} on Nickels & Dimes`;
     const params = new URLSearchParams({ date: time, lines: lines.join("|") });
+    if (durationSec) params.set("duration", fmtTime(durationSec));
     const imageUrl = `/api/share-card?${params.toString()}`;
 
     // Prefer sharing the branded workout image when the platform supports file sharing
