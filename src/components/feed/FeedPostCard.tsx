@@ -162,7 +162,7 @@ export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: b
           <MessageCircle size={15} />
           <span className="font-data text-xs">{commentCount}</span>
         </button>
-        <ShareWorkoutButton person={post.person} lines={post.lines} time={post.time} />
+        <ShareWorkoutButton lines={post.lines} time={post.time} />
       </div>
 
       {expanded && (

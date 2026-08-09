@@ -24,7 +24,6 @@ function BarbellMark({ width, height }: { width: number; height: number }) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const name = (searchParams.get("name") || "Someone").slice(0, 40);
   const date = (searchParams.get("date") || "").slice(0, 40);
   const lines = (searchParams.get("lines") || "")
     .split("|")
@@ -46,10 +45,9 @@ export async function GET(request: Request) {
       >
         <BarbellMark width={210} height={60} />
 
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 64 }}>
-          <div style={{ display: "flex", fontSize: 32, color: "#EAE3FF" }}>{name}</div>
-          {date && <div style={{ display: "flex", fontSize: 24, color: "#CBBBF5", marginTop: 6 }}>{date}</div>}
-        </div>
+        {date && (
+          <div style={{ display: "flex", fontSize: 24, color: "#CBBBF5", marginTop: 64 }}>{date}</div>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 56 }}>
           {lines.map((line, i) => (
