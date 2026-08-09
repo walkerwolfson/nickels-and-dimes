@@ -8,6 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { toggleLike, addComment, getComments, deleteWorkoutLog, type CommentItem } from "@/lib/actions/feed";
 import type { FeedPost } from "@/lib/data/feed";
 import { fmtTime } from "@/lib/domain";
+import { ShareWorkoutButton } from "@/components/feed/ShareWorkoutButton";
 
 export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: boolean }) {
   const router = useRouter();
@@ -161,6 +162,7 @@ export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: b
           <MessageCircle size={15} />
           <span className="font-data text-xs">{commentCount}</span>
         </button>
+        <ShareWorkoutButton person={post.person} lines={post.lines} time={post.time} />
       </div>
 
       {expanded && (
