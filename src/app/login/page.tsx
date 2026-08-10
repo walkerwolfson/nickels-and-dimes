@@ -15,6 +15,23 @@ export default function LoginPage() {
       <div className="mt-8 px-6">
         <LoginForm />
       </div>
+
+      <div className="mt-10 flex justify-center px-6">
+        <a
+          href="https://www.producthunt.com/products/nickels-dimes?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-nickels-dimes"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="opacity-80 transition-opacity hover:opacity-100"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1217735&theme=light"
+            alt="Nickels & Dimes - Calisthenics reps tracker, chase PRs, public/private clubs | Product Hunt"
+            width={200}
+            height={43}
+          />
+        </a>
+      </div>
     </div>
   );
 }
