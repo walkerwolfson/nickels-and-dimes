@@ -27,6 +27,7 @@ export const EXERCISES: Exercise[] = [
   { id: "mtnclimbers", name: "Mountain climbers", unit: "reps" },
   { id: "calfraises", name: "Calf raises", unit: "reps" },
   { id: "glutebridges", name: "Glute bridges", unit: "reps" },
+  { id: "situps", name: "Sit-ups", unit: "reps" },
 ];
 
 export const EXERCISE_BY_ID: Record<string, Exercise> = Object.fromEntries(

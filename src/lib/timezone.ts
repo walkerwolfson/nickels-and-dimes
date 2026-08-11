@@ -53,6 +53,15 @@ export function zonedMonthStart(instant: Date, timeZone: string = APP_TIME_ZONE,
   return new Date(startZonedAsUTC + offset);
 }
 
+// A real UTC instant guaranteed to read as `dateKey` (e.g. "2026-08-02") in `timeZone`,
+// for turning a plain date picked in the UI into a storable timestamp. Uses noon UTC on
+// that date — APP_TIME_ZONE's offset (-4/-5h) is small enough that noon UTC always still
+// falls on the same calendar day locally, no zonedParts round-trip needed.
+export function dateKeyToInstant(dateKey: string): Date {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+}
+
 // Midnight (as a real UTC instant) for the calendar year `instant` falls on in `timeZone`.
 export function zonedYearStart(instant: Date, timeZone: string = APP_TIME_ZONE, yearOffset = 0): Date {
   const p = zonedParts(instant, timeZone);

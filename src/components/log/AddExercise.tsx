@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, ChevronRight, Plus } from "lucide-react";
+import { X, ChevronRight, Plus, Minus } from "lucide-react";
 import { EXERCISES, EXERCISE_BY_ID, fmtTime, type Exercise } from "@/lib/domain";
 import type { SessionItem } from "@/components/log/LogFlow";
 
@@ -49,6 +49,10 @@ export function AddExercise({
     );
   }
 
+  function step(delta: number) {
+    setRepInput((v) => String(Math.max(0, parseInt(v || "0", 10) + delta)));
+  }
+
   const canSubmit = selected.unit === "reps" ? !!repInput : !!hours || !!minutes || !!seconds;
   const durationSec =
     parseInt(hours || "0", 10) * 3600 + parseInt(minutes || "0", 10) * 60 + parseInt(seconds || "0", 10);
@@ -89,13 +93,29 @@ export function AddExercise({
       {selected.unit === "reps" ? (
         <>
           <div className="mt-4 flex flex-col items-center gap-2 px-5">
-            <input
-              autoFocus
-              value={repInput}
-              onChange={(e) => setRepInput(e.target.value.replace(/[^0-9]/g, ""))}
-              placeholder="0"
-              className="w-full border-none bg-transparent text-center font-display text-[60px] text-text outline-none"
-            />
+            <div className="flex w-full items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => step(-1)}
+                className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text-dim transition-transform duration-100 active:scale-90"
+              >
+                <Minus size={20} />
+              </button>
+              <input
+                autoFocus
+                value={repInput}
+                onChange={(e) => setRepInput(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="0"
+                className="w-[140px] border-none bg-transparent text-center font-display text-[60px] text-text outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => step(1)}
+                className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text-dim transition-transform duration-100 active:scale-90"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
             <span className="font-data text-xs tracking-wide text-text-dim">REPS</span>
           </div>
           <div className="mt-8 px-5">

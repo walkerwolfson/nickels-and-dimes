@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/lib/auth";
+import { dateKeyToInstant } from "@/lib/timezone";
 
 export type PostWorkoutInput = {
   lines: string[];
   totalReps: number;
   breakdown: Record<string, { name: string; unit: "reps" | "time"; value: number }>;
   durationSec?: number;
+  loggedAtDateKey?: string; // "YYYY-MM-DD" — set when backfilling a past workout, omit for "now"
 };
 
 export async function postWorkout(input: PostWorkoutInput): Promise<void> {
@@ -26,6 +28,7 @@ export async function postWorkout(input: PostWorkoutInput): Promise<void> {
       lines: input.lines,
       totalReps: input.totalReps,
       durationSec: input.durationSec,
+      ...(input.loggedAtDateKey ? { loggedAt: dateKeyToInstant(input.loggedAtDateKey) } : {}),
       entries: {
         create: Object.entries(input.breakdown).map(([exerciseId, info]) => ({
           exerciseId,

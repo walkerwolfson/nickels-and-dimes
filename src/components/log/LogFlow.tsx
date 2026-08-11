@@ -7,6 +7,7 @@ import { AddExercise } from "@/components/log/AddExercise";
 import { AddWod } from "@/components/log/AddWod";
 import { fmtDateTime } from "@/lib/domain";
 import { postWorkout } from "@/lib/actions/log";
+import { zonedDateKey } from "@/lib/timezone";
 
 export type SessionItem = {
   id: string;
@@ -18,13 +19,16 @@ export type SessionItem = {
     | { kind: "wod"; wodId: string; rounds: string; partial: Record<string, string> };
 };
 
-export function LogFlow() {
+const TODAY_KEY = zonedDateKey(new Date());
+
+export function LogFlow({ mode = "log" }: { mode?: "log" | "backfill" }) {
   const router = useRouter();
   const [session, setSession] = useState<SessionItem[]>([]);
   const [adding, setAdding] = useState<"exercise" | "wod" | null>(null);
   const [editingItem, setEditingItem] = useState<SessionItem | null>(null);
   const [posting, setPosting] = useState(false);
   const [done, setDone] = useState(false);
+  const [dateKey, setDateKey] = useState(TODAY_KEY);
 
   const [showDuration, setShowDuration] = useState(false);
   const [durHours, setDurHours] = useState("");
@@ -69,22 +73,38 @@ export function LogFlow() {
       totalReps: session.reduce((s, i) => s + i.totalReps, 0),
       breakdown,
       durationSec: durationSec > 0 ? durationSec : undefined,
+      loggedAtDateKey: mode === "backfill" ? dateKey : undefined,
     });
     setDone(true);
-    setTimeout(() => router.push("/home"), 900);
+    setTimeout(() => router.push(mode === "backfill" ? "/history" : "/home"), 900);
   }
 
   return (
     <div className="relative flex-1 overflow-y-auto" style={{ background: "var(--bg)" }}>
       <div className="flex items-center justify-between px-5 pt-6 pb-4">
         <div className="flex flex-col">
-          <h1 className="font-display text-2xl uppercase text-text">Log your workout</h1>
-          <span className="font-data text-[11px] text-text-faint">{fmtDateTime(new Date())}</span>
+          <h1 className="font-display text-2xl uppercase text-text">
+            {mode === "backfill" ? "Backfill a workout" : "Log your workout"}
+          </h1>
+          {mode === "log" && <span className="font-data text-[11px] text-text-faint">{fmtDateTime(new Date())}</span>}
         </div>
-        <button onClick={() => router.push("/home")} className="text-text-dim">
+        <button onClick={() => router.push(mode === "backfill" ? "/history" : "/home")} className="text-text-dim">
           <X size={22} />
         </button>
       </div>
+
+      {mode === "backfill" && !done && (
+        <div className="px-5 pb-4">
+          <span className="font-data text-[11px] tracking-wide text-text-dim">DATE</span>
+          <input
+            type="date"
+            value={dateKey}
+            max={TODAY_KEY}
+            onChange={(e) => e.target.value && setDateKey(e.target.value)}
+            className="mt-1.5 w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3.5 py-3 text-[15px] text-text outline-none"
+          />
+        </div>
+      )}
 
       {done ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-20">

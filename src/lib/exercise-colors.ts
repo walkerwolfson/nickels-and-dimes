@@ -24,6 +24,7 @@ const PALETTE = [
   "#F2994A", // peach
   "#6FCF97", // mint
   "#8D6E63", // taupe
+  "#F45D9C", // hot pink
 ];
 
 const COLOR_BY_EXERCISE: Record<string, string> = Object.fromEntries(

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { X, User, Settings, Globe, ChevronRight, Smartphone } from "lucide-react";
+import { X, User, Settings, Globe, ChevronRight, Smartphone, CalendarPlus } from "lucide-react";
 
 function AddToHomeScreenModal({ onClose }: { onClose: () => void }) {
   return (
@@ -84,6 +84,15 @@ export function Sidebar({
           >
             <Settings size={18} color="var(--purple-deep)" />
             <span className="text-[14px] font-semibold">Settings</span>
+            <ChevronRight size={15} className="ml-auto text-text-faint" />
+          </Link>
+          <Link
+            href="/log/backfill"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text"
+          >
+            <CalendarPlus size={18} color="var(--purple-deep)" />
+            <span className="text-[14px] font-semibold">Backfill a Workout</span>
             <ChevronRight size={15} className="ml-auto text-text-faint" />
           </Link>
           <button
