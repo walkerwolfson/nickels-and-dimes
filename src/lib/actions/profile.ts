@@ -22,7 +22,6 @@ export async function updateProfile(_prev: ProfileFormState, formData: FormData)
 
   const heightCm = parseOptionalFloat(formData.get("heightCm"));
   const weightKg = parseOptionalFloat(formData.get("weightKg"));
-  const birthdayRaw = String(formData.get("birthday") || "");
   const photoUrl = String(formData.get("photoUrl") || "").trim();
   const hometown = String(formData.get("hometown") || "").trim();
 
@@ -32,7 +31,6 @@ export async function updateProfile(_prev: ProfileFormState, formData: FormData)
       displayName,
       heightCm,
       weightKg,
-      birthday: birthdayRaw ? new Date(birthdayRaw) : null,
       hometown: hometown || null,
       ...(photoUrl ? { photoUrl } : {}),
     },

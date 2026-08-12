@@ -12,7 +12,6 @@ type Profile = {
   photoUrl: string | null;
   heightCm: number | null;
   weightKg: number | null;
-  birthday: Date | null;
   hometown: string | null;
   units: "LB" | "KG";
 };
@@ -201,16 +200,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           <span className="font-data text-sm text-text-faint">{isMetric ? "kg" : "lb"}</span>
         </div>
         <input type="hidden" name="weightKg" value={weightKg ?? ""} />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <span className="font-data text-xs tracking-wide text-text-dim">BIRTHDAY</span>
-        <input
-          type="date"
-          name="birthday"
-          defaultValue={profile.birthday ? profile.birthday.toISOString().slice(0, 10) : ""}
-          className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-3.5 py-3 text-[15px] text-text outline-none"
-        />
       </div>
 
       {state.error && <span className="text-[12.5px] text-pink">{state.error}</span>}
