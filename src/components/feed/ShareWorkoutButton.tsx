@@ -52,7 +52,11 @@ export function ShareWorkoutButton({
   }
 
   return (
-    <button type="button" onClick={handleShare} className="flex items-center gap-1.5">
+    <button
+      type="button"
+      onClick={handleShare}
+      className="flex items-center gap-1.5 p-2 -m-2 touch-manipulation transition-transform duration-100 active:scale-90"
+    >
       {copied ? (
         <>
           <Check size={15} color="var(--purple-deep)" />

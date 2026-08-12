@@ -29,7 +29,7 @@ export function AddExercise({
       <div className="absolute inset-0 z-30 flex flex-col" style={{ background: "var(--bg)" }}>
         <div className="flex items-center justify-between px-5 pt-6 pb-4">
           <h1 className="font-display text-[22px] uppercase text-text">Pick a movement</h1>
-          <button onClick={onClose} className="text-text-dim">
+          <button onClick={onClose} className="p-2 -m-2 text-text-dim touch-manipulation transition-transform duration-100 active:scale-90">
             <X size={22} />
           </button>
         </div>
@@ -38,7 +38,7 @@ export function AddExercise({
             <button
               key={ex.id}
               onClick={() => setSelected(ex)}
-              className="flex items-center justify-between border-b border-border py-3"
+              className="flex items-center justify-between border-b border-border py-3 touch-manipulation transition-colors duration-100 active:bg-bg"
             >
               <span className="text-[15px] text-text">{ex.name}</span>
               <ChevronRight size={16} className="text-text-faint" />
@@ -196,7 +196,7 @@ export function AddExercise({
       <button
         disabled={!canSubmit}
         onClick={handleAdd}
-        className="mx-5 mt-auto mb-8 py-4 font-display text-base uppercase text-white"
+        className="mx-5 mt-auto mb-8 py-4 font-display text-base uppercase text-white touch-manipulation transition-transform duration-100 active:enabled:scale-[0.98]"
         style={{ background: "var(--purple)", borderRadius: 12, opacity: canSubmit ? 1 : 0.4 }}
       >
         {initial ? "Save changes" : "Add to workout"}

@@ -24,7 +24,7 @@ export function NavBar() {
             <Link
               key={item.id}
               href={item.href}
-              className="-mt-5 flex flex-col items-center justify-center rounded-[14px] border-2 border-[#2B2E00] bg-yellow shadow-[0_4px_10px_rgba(232,255,61,0.55)]"
+              className="-mt-5 flex flex-col items-center justify-center rounded-[14px] border-2 border-[#2B2E00] bg-yellow shadow-[0_4px_10px_rgba(232,255,61,0.55)] touch-manipulation transition-transform duration-100 active:scale-90"
               style={{ width: 52, height: 52 }}
             >
               <Plus size={24} color="#2B2E00" />
@@ -35,7 +35,7 @@ export function NavBar() {
           <Link
             key={item.id}
             href={item.href}
-            className="flex flex-col items-center gap-1"
+            className="flex h-full flex-col items-center justify-center gap-1 touch-manipulation transition-transform duration-100 active:scale-90"
             style={{ width: 52, color: active ? "var(--purple-deep)" : "var(--text-faint)" }}
           >
             <item.icon size={20} strokeWidth={active ? 2.4 : 1.8} />

@@ -88,7 +88,10 @@ export function LogFlow({ mode = "log" }: { mode?: "log" | "backfill" }) {
           </h1>
           {mode === "log" && <span className="font-data text-[11px] text-text-faint">{fmtDateTime(new Date())}</span>}
         </div>
-        <button onClick={() => router.push(mode === "backfill" ? "/history" : "/home")} className="text-text-dim">
+        <button
+          onClick={() => router.push(mode === "backfill" ? "/history" : "/home")}
+          className="p-2 -m-2 text-text-dim touch-manipulation transition-transform duration-100 active:scale-90"
+        >
           <X size={22} />
         </button>
       </div>
@@ -129,22 +132,21 @@ export function LogFlow({ mode = "log" }: { mode?: "log" | "backfill" }) {
                   <button
                     key={item.id}
                     onClick={() => editItem(item)}
-                    className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-left"
+                    className="flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-left touch-manipulation transition-transform duration-100 active:scale-[0.98]"
                   >
                     <span className="text-sm font-semibold text-text">{item.label}</span>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
                       <ChevronRight size={15} className="text-text-faint" />
-                      <span
-                        role="button"
-                        tabIndex={0}
+                      <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeItem(item.id);
                         }}
-                        className="text-text-faint"
+                        className="p-2 -m-2 text-text-faint touch-manipulation transition-transform duration-100 active:scale-90"
                       >
                         <X size={16} />
-                      </span>
+                      </button>
                     </div>
                   </button>
                 ))}
@@ -154,14 +156,14 @@ export function LogFlow({ mode = "log" }: { mode?: "log" | "backfill" }) {
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => setAdding("exercise")}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 font-data text-xs font-bold"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 font-data text-xs font-bold touch-manipulation transition-transform duration-100 active:scale-95"
                 style={{ background: "var(--purple-soft)", color: "var(--purple-deep)" }}
               >
                 <Plus size={14} /> Add exercise
               </button>
               <button
                 onClick={() => setAdding("wod")}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 font-data text-xs font-bold text-text"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 font-data text-xs font-bold text-text touch-manipulation transition-transform duration-100 active:scale-95"
                 style={{ background: "var(--blue-soft)" }}
               >
                 <Plus size={14} /> Add named workout
@@ -214,7 +216,7 @@ export function LogFlow({ mode = "log" }: { mode?: "log" | "backfill" }) {
           <button
             disabled={session.length === 0 || posting}
             onClick={post}
-            className="mx-5 mt-6 mb-8 py-4 font-display text-base uppercase text-white"
+            className="mx-5 mt-6 mb-8 py-4 font-display text-base uppercase text-white touch-manipulation transition-transform duration-100 active:enabled:scale-[0.98]"
             style={{ background: "var(--purple)", borderRadius: 12, opacity: session.length === 0 || posting ? 0.4 : 1 }}
           >
             {posting ? "Posting…" : "Post workout"}

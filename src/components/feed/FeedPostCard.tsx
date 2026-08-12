@@ -153,12 +153,19 @@ export function FeedPostCard({ post, isOwnPost }: { post: FeedPost; isOwnPost: b
 
       <div className="mt-3 flex items-center gap-4 text-text-dim">
         <form action={toggleLike.bind(null, post.id)}>
-          <button type="submit" className="flex items-center gap-1.5">
+          <button
+            type="submit"
+            className="flex items-center gap-1.5 p-2 -m-2 touch-manipulation transition-transform duration-100 active:scale-90"
+          >
             <Heart size={15} color="var(--pink)" fill={post.likedByMe ? "var(--pink)" : "none"} />
             <span className="font-data text-xs">{post.likes}</span>
           </button>
         </form>
-        <button type="button" onClick={toggleExpanded} className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={toggleExpanded}
+          className="flex items-center gap-1.5 p-2 -m-2 touch-manipulation transition-transform duration-100 active:scale-90"
+        >
           <MessageCircle size={15} />
           <span className="font-data text-xs">{commentCount}</span>
         </button>

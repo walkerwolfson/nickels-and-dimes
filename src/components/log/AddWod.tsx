@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Minus, Plus } from "lucide-react";
 import { WODS, WOD_BY_ID, EXERCISE_BY_ID, type Wod } from "@/lib/domain";
 import type { SessionItem } from "@/components/log/LogFlow";
 
@@ -26,7 +26,7 @@ export function AddWod({
       <div className="absolute inset-0 z-30 flex flex-col" style={{ background: "var(--bg)" }}>
         <div className="flex items-center justify-between px-5 pt-6 pb-4">
           <h1 className="font-display text-[22px] uppercase text-text">Named workout</h1>
-          <button onClick={onClose} className="text-text-dim">
+          <button onClick={onClose} className="p-2 -m-2 text-text-dim touch-manipulation transition-transform duration-100 active:scale-90">
             <X size={22} />
           </button>
         </div>
@@ -35,7 +35,7 @@ export function AddWod({
             <button
               key={w.id}
               onClick={() => setSelected(w)}
-              className="flex flex-col items-start rounded-xl border border-border bg-surface px-5 py-4 text-left"
+              className="flex flex-col items-start rounded-xl border border-border bg-surface px-5 py-4 text-left touch-manipulation transition-transform duration-100 active:scale-[0.98]"
             >
               <span className="font-display text-lg uppercase text-text">{w.name}</span>
               <span className="mt-1 font-data text-xs text-text-faint">{w.desc}</span>
@@ -78,7 +78,7 @@ export function AddWod({
     <div className="absolute inset-0 z-30 flex flex-col" style={{ background: "var(--bg)" }}>
       <div className="flex items-center justify-between px-5 pt-6 pb-4">
         <h1 className="font-display text-[22px] uppercase text-text">{selected.name}</h1>
-        <button onClick={onClose} className="text-text-dim">
+        <button onClick={onClose} className="p-2 -m-2 text-text-dim touch-manipulation transition-transform duration-100 active:scale-90">
           <X size={22} />
         </button>
       </div>
@@ -92,13 +92,29 @@ export function AddWod({
         ) : (
           <>
             <div className="flex flex-col items-center gap-2">
-              <input
-                autoFocus
-                value={rounds}
-                onChange={(e) => setRounds(e.target.value.replace(/[^0-9]/g, ""))}
-                placeholder="0"
-                className="w-full border-none bg-transparent text-center font-display text-[52px] text-text outline-none"
-              />
+              <div className="flex w-full items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRounds((v) => String(Math.max(0, parseInt(v || "0", 10) - 1)))}
+                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text-dim touch-manipulation transition-transform duration-100 active:scale-90"
+                >
+                  <Minus size={20} />
+                </button>
+                <input
+                  autoFocus
+                  value={rounds}
+                  onChange={(e) => setRounds(e.target.value.replace(/[^0-9]/g, ""))}
+                  placeholder="0"
+                  className="w-[140px] border-none bg-transparent text-center font-display text-[52px] text-text outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setRounds((v) => String(parseInt(v || "0", 10) + 1))}
+                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-border bg-surface text-text-dim touch-manipulation transition-transform duration-100 active:scale-90"
+                >
+                  <Plus size={20} />
+                </button>
+              </div>
               <span className="font-data text-xs tracking-wide text-text-dim">
                 {selected.id === "cindy" ? "FULL ROUNDS" : "ROUNDS COMPLETED"}
               </span>
@@ -127,7 +143,7 @@ export function AddWod({
       <button
         disabled={!canSubmit}
         onClick={handleAdd}
-        className="mx-5 mb-8 py-4 font-display text-base uppercase text-white"
+        className="mx-5 mb-8 py-4 font-display text-base uppercase text-white touch-manipulation transition-transform duration-100 active:enabled:scale-[0.98]"
         style={{ background: "var(--purple)", borderRadius: 12, opacity: canSubmit ? 1 : 0.4 }}
       >
         {initial ? "Save changes" : "Add to workout"}

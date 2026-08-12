@@ -7,7 +7,10 @@ import { X, User, Settings, Globe, ChevronRight, Smartphone, CalendarPlus } from
 function AddToHomeScreenModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4 px-6" style={{ background: "rgba(20,18,35,0.92)" }}>
-      <button onClick={onClose} className="absolute right-5 top-6 text-white">
+      <button
+        onClick={onClose}
+        className="absolute right-5 top-6 p-2 -m-2 text-white touch-manipulation transition-transform duration-100 active:scale-90"
+      >
         <X size={24} />
       </button>
       <span className="font-display text-lg uppercase text-white">Add to Home Screen</span>
@@ -40,7 +43,10 @@ export function Sidebar({
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className={className}>
+      <button
+        onClick={() => setOpen(true)}
+        className={`p-2 touch-manipulation transition-transform duration-100 active:scale-90 ${className ?? ""}`}
+      >
         {children}
       </button>
 
@@ -62,7 +68,10 @@ export function Sidebar({
       >
         <div className="flex items-center justify-between px-5 pt-6 pb-4">
           <span className="font-stencil text-lg uppercase tracking-wide text-text">Menu</span>
-          <button onClick={() => setOpen(false)} className="text-text-dim">
+          <button
+            onClick={() => setOpen(false)}
+            className="p-2 -m-2 text-text-dim touch-manipulation transition-transform duration-100 active:scale-90"
+          >
             <X size={20} />
           </button>
         </div>
@@ -71,7 +80,7 @@ export function Sidebar({
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text"
+            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text touch-manipulation transition-colors duration-100 active:bg-bg"
           >
             <User size={18} color="var(--purple-deep)" />
             <span className="text-[14px] font-semibold">Profile</span>
@@ -80,7 +89,7 @@ export function Sidebar({
           <Link
             href="/settings"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text"
+            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text touch-manipulation transition-colors duration-100 active:bg-bg"
           >
             <Settings size={18} color="var(--purple-deep)" />
             <span className="text-[14px] font-semibold">Settings</span>
@@ -89,7 +98,7 @@ export function Sidebar({
           <Link
             href="/log/backfill"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text"
+            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-text touch-manipulation transition-colors duration-100 active:bg-bg"
           >
             <CalendarPlus size={18} color="var(--purple-deep)" />
             <span className="text-[14px] font-semibold">Backfill a Workout</span>
@@ -101,7 +110,7 @@ export function Sidebar({
               setOpen(false);
               setShowVideo(true);
             }}
-            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-left text-text"
+            className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-left text-text touch-manipulation transition-colors duration-100 active:bg-bg"
           >
             <Smartphone size={18} color="var(--purple-deep)" />
             <span className="text-[14px] font-semibold">Add to Home Screen</span>
