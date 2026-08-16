@@ -12,7 +12,10 @@ export function StackedBarChart({ data, height = 140 }: { data: StackedBucket[];
         const isLast = i === data.length - 1;
         const barHeight = Math.max((bucket.total / max) * height, bucket.total > 0 ? 4 : 2);
         return (
-          <div key={i} className="flex flex-1 flex-col items-center gap-1.5">
+          <div key={i} className="flex flex-1 flex-col items-center gap-1">
+            <span className="font-data text-[9px] font-bold text-text" style={{ visibility: bucket.total > 0 ? "visible" : "hidden" }}>
+              {bucket.total.toLocaleString()}
+            </span>
             <div
               className="flex w-full flex-col-reverse overflow-hidden rounded-[3px]"
               style={{ height: barHeight, opacity: isLast ? 1 : 0.85 }}

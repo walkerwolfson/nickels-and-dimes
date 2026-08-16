@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { MiniBarChart } from "@/components/charts/MiniBarChart";
+import { LabeledBarChart } from "@/components/charts/LabeledBarChart";
 import { fmtTime } from "@/lib/domain";
+import { colorForExercise } from "@/lib/exercise-colors";
 import type { ExerciseRowData } from "@/lib/data/history";
 
 function fmtValue(row: ExerciseRowData) {
@@ -48,14 +50,7 @@ export function ExerciseRow({ row, rangeUnit }: { row: ExerciseRowData; rangeUni
         <div className="pb-4">
           {hasData ? (
             <div className="rounded-[12px] border border-border bg-surface-alt/40 p-4">
-              <MiniBarChart data={row.series} size="large" />
-              <div className="mt-3 flex justify-between gap-2">
-                {row.series.map((s, i) => (
-                  <span key={i} className="flex-1 text-center font-data text-[9px] text-text-faint">
-                    {s.label}
-                  </span>
-                ))}
-              </div>
+              <LabeledBarChart data={row.series} color={colorForExercise(row.exerciseId)} unit={row.unit} height={110} />
             </div>
           ) : (
             <span className="text-[13px] text-text-faint">Nothing logged for this exercise yet.</span>
