@@ -1,10 +1,10 @@
 import { HistoryScreen } from "@/components/history/HistoryScreen";
-import { getAllHistoryRanges } from "@/lib/data/history";
+import { getHistoryPageData } from "@/lib/data/history";
 import { getCurrentUserId } from "@/lib/auth";
 
 export default async function HistoryPage() {
   const userId = await getCurrentUserId();
-  const dataByRange = await getAllHistoryRanges(userId);
+  const { ranges, months, monthSnapshots } = await getHistoryPageData(userId);
 
-  return <HistoryScreen dataByRange={dataByRange} />;
+  return <HistoryScreen dataByRange={ranges} months={months} monthSnapshots={monthSnapshots} />;
 }

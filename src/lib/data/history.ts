@@ -79,15 +79,17 @@ export type HistoryData = {
   rows: ExerciseRowData[];
 };
 
+export type MonthOption = { key: string; label: string };
+
+export type MonthSnapshot = Omit<HistoryData, "range"> & { monthKey: string; monthLabel: string };
+
 const TOP_N_IN_CHART = 7; // matches the 7-color palette so no two shown exercises share a color
 
-function aggregate(entries: SeedEntry[], range: HistoryRange, referenceDate: Date): HistoryData {
-  const earliest = entries.reduce(
-    (min, e) => (e.date < min ? e.date : min),
-    entries[0]?.date ?? referenceDate
-  );
-  const buckets = getBucketDefs(range, referenceDate, earliest);
-
+// Shared aggregation core: given entries and a set of buckets to group them into,
+// compute the hero total, per-exercise breakdown, stacked chart, and per-exercise rows.
+// Both the relative ranges (W/M/Y/All) and a specific calendar-month snapshot funnel
+// through this — only how the buckets are built differs.
+function aggregateFromBuckets(entries: SeedEntry[], buckets: Bucket[]) {
   const inRange = entries.filter((e) => e.date >= buckets[0].start && e.date < buckets[buckets.length - 1].end);
 
   // Totals per exercise across the whole range (reps-only for the hero/chart, all units for rows).
@@ -157,7 +159,83 @@ function aggregate(entries: SeedEntry[], range: HistoryRange, referenceDate: Dat
     };
   }).sort((a, b) => b.total - a.total);
 
-  return { range, heroTotal, breakdown, chart, rows };
+  return { heroTotal, breakdown, chart, rows };
+}
+
+function aggregate(entries: SeedEntry[], range: HistoryRange, referenceDate: Date): HistoryData {
+  const earliest = entries.reduce(
+    (min, e) => (e.date < min ? e.date : min),
+    entries[0]?.date ?? referenceDate
+  );
+  const buckets = getBucketDefs(range, referenceDate, earliest);
+  return { range, ...aggregateFromBuckets(entries, buckets) };
+}
+
+// The Y/M the given instant reads as in `timeZone`, as numbers — used to walk between
+// calendar months without caring what timezone the server's own clock is in.
+function zonedYearMonth(date: Date, timeZone: string = APP_TIME_ZONE): { year: number; month: number } {
+  return {
+    year: Number(date.toLocaleDateString("en-US", { year: "numeric", timeZone })),
+    month: Number(date.toLocaleDateString("en-US", { month: "numeric", timeZone })),
+  };
+}
+
+function monthKeyOf(year: number, month: number): string {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+// Every calendar month from the user's earliest logged entry through the current month,
+// most recent first — what the History screen's month picker lists.
+function listMonthKeys(earliest: Date, referenceDate: Date): string[] {
+  const start = zonedYearMonth(earliest);
+  const end = zonedYearMonth(referenceDate);
+  const keys: string[] = [];
+  let { year, month } = start;
+  while (year < end.year || (year === end.year && month <= end.month)) {
+    keys.push(monthKeyOf(year, month));
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+  return keys.reverse();
+}
+
+function monthKeyToLabel(key: string): string {
+  const [year, month] = key.split("-").map(Number);
+  // Noon UTC keeps the date on the same calendar day regardless of the small
+  // America/Toronto offset — same trick as dateKeyToInstant in timezone.ts.
+  const anyDayInMonth = new Date(Date.UTC(year, month - 1, 1, 12, 0, 0));
+  return anyDayInMonth.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: APP_TIME_ZONE });
+}
+
+// Splits a calendar month into ~7-day buckets (day 1-7, 8-14, ...), the last one
+// truncated to the month's actual end — mirrors the "M" range's weekly buckets but
+// anchored to the 1st of the month instead of trailing back from today.
+function getMonthBucketDefs(start: Date, end: Date): Bucket[] {
+  const buckets: Bucket[] = [];
+  let cursor = start;
+  while (cursor < end) {
+    const bucketEnd = new Date(Math.min(cursor.getTime() + 7 * DAY_MS, end.getTime()));
+    buckets.push({
+      start: cursor,
+      end: bucketEnd,
+      label: cursor.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: APP_TIME_ZONE }),
+    });
+    cursor = bucketEnd;
+  }
+  return buckets;
+}
+
+function aggregateMonthSnapshot(entries: SeedEntry[], monthKey: string, referenceDate: Date): MonthSnapshot {
+  const [year, month] = monthKey.split("-").map(Number);
+  const ref = zonedYearMonth(referenceDate);
+  const monthOffset = (year - ref.year) * 12 + (month - ref.month);
+  const start = zonedMonthStart(referenceDate, APP_TIME_ZONE, monthOffset);
+  const end = zonedMonthStart(referenceDate, APP_TIME_ZONE, monthOffset + 1);
+  const buckets = getMonthBucketDefs(start, end);
+  return { monthKey, monthLabel: monthKeyToLabel(monthKey), ...aggregateFromBuckets(entries, buckets) };
 }
 
 async function fetchUserEntries(userId: string, referenceDate: Date): Promise<SeedEntry[]> {
@@ -195,4 +273,35 @@ export async function getAllHistoryRanges(userId: string = DEMO_USER_ID): Promis
     HistoryRange,
     HistoryData
   >;
+}
+
+// Everything the History page needs in one fetch: the four relative ranges, the list of
+// calendar months the user has logged anything in (for the month picker), and a
+// pre-computed snapshot for each of those months (so picking one is instant, same
+// reasoning as getAllHistoryRanges above).
+export async function getHistoryPageData(userId: string = DEMO_USER_ID): Promise<{
+  ranges: Record<HistoryRange, HistoryData>;
+  months: MonthOption[];
+  monthSnapshots: Record<string, MonthSnapshot>;
+}> {
+  const referenceDate = new Date();
+  const entries = await fetchUserEntries(userId, referenceDate);
+
+  const rangeKeys: HistoryRange[] = ["W", "M", "Y", "All"];
+  const ranges = Object.fromEntries(rangeKeys.map((r) => [r, aggregate(entries, r, referenceDate)])) as Record<
+    HistoryRange,
+    HistoryData
+  >;
+
+  const earliest = entries.reduce(
+    (min, e) => (e.date < min ? e.date : min),
+    entries[0]?.date ?? referenceDate
+  );
+  const monthKeys = listMonthKeys(earliest, referenceDate);
+  const months = monthKeys.map((key) => ({ key, label: monthKeyToLabel(key) }));
+  const monthSnapshots = Object.fromEntries(
+    monthKeys.map((key) => [key, aggregateMonthSnapshot(entries, key, referenceDate)])
+  );
+
+  return { ranges, months, monthSnapshots };
 }

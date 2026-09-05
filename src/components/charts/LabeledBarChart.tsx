@@ -17,14 +17,24 @@ export function LabeledBarChart({
   const max = Math.max(...data.map((d) => d.value), 1);
   const fmt = (v: number) => (unit === "time" ? fmtTime(v) : v.toLocaleString());
 
+  // Reserve space for the value label above and the axis label below so the tallest
+  // bar (scaled to fill the full `height`) can't push its labels outside the box —
+  // see the identical fix in StackedBarChart.
+  const VALUE_LABEL_SPACE = 16;
+  const AXIS_LABEL_SPACE = 14;
+  const barAreaHeight = Math.max(height - VALUE_LABEL_SPACE - AXIS_LABEL_SPACE, 24);
+
   return (
     <div className="flex items-end gap-1.5" style={{ height }}>
       {data.map((d, i) => {
         const isLast = i === data.length - 1;
-        const barHeight = Math.max((d.value / max) * height, d.value > 0 ? 4 : 2);
+        const barHeight = Math.max((d.value / max) * barAreaHeight, d.value > 0 ? 4 : 2);
         return (
           <div key={i} className="flex flex-1 flex-col items-center gap-1">
-            <span className="font-data text-[9px] font-bold text-text" style={{ visibility: d.value > 0 ? "visible" : "hidden" }}>
+            <span
+              className="font-data text-[9px] font-bold leading-none text-text"
+              style={{ height: VALUE_LABEL_SPACE - 4, visibility: d.value > 0 ? "visible" : "hidden" }}
+            >
               {fmt(d.value)}
             </span>
             <div
@@ -35,7 +45,12 @@ export function LabeledBarChart({
                 opacity: isLast ? 1 : 0.75 + 0.25 * (d.value / max),
               }}
             />
-            <span className="font-data text-[9px] text-text-faint">{d.label}</span>
+            <span
+              className="font-data text-[9px] leading-none text-text-faint"
+              style={{ height: AXIS_LABEL_SPACE - 4 }}
+            >
+              {d.label}
+            </span>
           </div>
         );
       })}
