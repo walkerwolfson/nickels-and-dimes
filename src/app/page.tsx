@@ -240,6 +240,53 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* What it looks like */}
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-5xl px-5 pb-14">
+            <h2 className="text-center font-display text-xl uppercase text-text sm:text-2xl">
+              What it looks like
+            </h2>
+            <div className="mt-9 grid gap-5 sm:grid-cols-3">
+              {[
+                {
+                  src: "/marketing/history.png",
+                  w: 740,
+                  h: 833,
+                  alt: "Weekly rep totals broken down by movement with a bar chart",
+                  cap: "Your last 7 days",
+                },
+                {
+                  src: "/marketing/club.png",
+                  w: 740,
+                  h: 779,
+                  alt: "A club leaderboard ranking members by push-ups this month",
+                  cap: "Club leaderboard",
+                },
+                {
+                  src: "/marketing/home.png",
+                  w: 740,
+                  h: 833,
+                  alt: "The home feed showing a logged set with likes and comments",
+                  cap: "The feed",
+                },
+              ].map((s) => (
+                <figure key={s.src} className="m-0">
+                  <Image
+                    src={s.src}
+                    alt={s.alt}
+                    width={s.w}
+                    height={s.h}
+                    className="w-full rounded-[16px] border-[1.5px] border-border shadow-sm"
+                  />
+                  <figcaption className="mt-2.5 text-center font-data text-[10px] uppercase tracking-widest text-text-faint">
+                    {s.cap}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Why it exists */}
         <section className="border-y border-border bg-surface">
           <div className="mx-auto max-w-3xl px-5 py-12">
