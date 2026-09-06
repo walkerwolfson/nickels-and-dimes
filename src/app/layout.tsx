@@ -48,7 +48,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION,
+    google:
+      process.env.GOOGLE_SITE_VERIFICATION ??
+      "nVDMv5WyQURDErkktGXR1h32NaHIrKpmsCXTvhp3pSY",
   },
   appleWebApp: {
     capable: true,
