@@ -41,13 +41,16 @@ export default async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublicRoute =
+  // /guides/* is public content anyone can read, signed in or not — no redirect either way.
+  const isGuides = path === "/guides" || path.startsWith("/guides/");
+  const isLandingOrAuth =
     path === LANDING_PATH || PUBLIC_ROUTES.some((route) => path.startsWith(route));
 
-  if (!user && !isPublicRoute) {
+  if (!user && !isLandingOrAuth && !isGuides) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
-  if (user && isPublicRoute) {
+  // Signed-in users skip the landing page and auth screens, but can still read guides.
+  if (user && isLandingOrAuth) {
     return NextResponse.redirect(new URL("/home", request.url));
   }
 

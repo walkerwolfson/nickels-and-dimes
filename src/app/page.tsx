@@ -379,6 +379,9 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-5 py-6 text-[12.5px] text-text-faint sm:flex-row">
           <span className="font-data">Nickels &amp; Dimes</span>
           <div className="flex items-center gap-4">
+            <Link href="/guides" className="hover:text-text-dim">
+              Guides
+            </Link>
             <Link href="/login" className="hover:text-text-dim">
               Log in
             </Link>
