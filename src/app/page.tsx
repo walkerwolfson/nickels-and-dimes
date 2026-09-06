@@ -176,6 +176,12 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "document.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('[data-cta]');if(t&&typeof window.gtag==='function'){window.gtag('event','landing_cta_click',{cta_location:t.getAttribute('data-cta')})}},true);",
+        }}
+      />
 
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
         <Image
@@ -195,6 +201,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/login"
+            data-cta="header"
             className="rounded-[10px] bg-purple px-4 py-2 font-display text-[13px] uppercase tracking-wide text-white hover:bg-purple-deep"
           >
             Start free
@@ -219,6 +226,7 @@ export default function LandingPage() {
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/login"
+              data-cta="hero"
               className="w-full rounded-[10px] bg-purple px-6 py-3.5 font-display text-[15px] uppercase tracking-wide text-white hover:bg-purple-deep sm:w-auto"
             >
               Start free
@@ -312,6 +320,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/login"
+            data-cta="footer_cta"
             className="mt-6 inline-block rounded-[10px] bg-purple px-8 py-3.5 font-display text-[15px] uppercase tracking-wide text-white hover:bg-purple-deep"
           >
             Start free

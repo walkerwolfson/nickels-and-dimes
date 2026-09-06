@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Users } from "lucide-react";
 import { joinClub } from "@/lib/actions/club";
+import { track } from "@/lib/analytics";
 import type { ClubSummary } from "@/lib/data/club";
 
 export function JoinClubScreen({ club, alreadyMember }: { club: ClubSummary; alreadyMember: boolean }) {
@@ -13,6 +14,7 @@ export function JoinClubScreen({ club, alreadyMember }: { club: ClubSummary; alr
   function handleJoin() {
     startTransition(async () => {
       await joinClub(club.id);
+      track("club_joined", { source: "invite_link" });
       router.push(`/club?club=${club.id}`);
     });
   }

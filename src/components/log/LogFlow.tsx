@@ -7,6 +7,7 @@ import { AddExercise } from "@/components/log/AddExercise";
 import { AddWod } from "@/components/log/AddWod";
 import { fmtDateTime } from "@/lib/domain";
 import { postWorkout } from "@/lib/actions/log";
+import { track } from "@/lib/analytics";
 import { zonedDateKey } from "@/lib/timezone";
 
 export type SessionItem = {
@@ -68,12 +69,19 @@ export function LogFlow({ mode = "log" }: { mode?: "log" | "backfill" }) {
     });
     const durationSec =
       parseInt(durHours || "0", 10) * 3600 + parseInt(durMinutes || "0", 10) * 60 + parseInt(durSeconds || "0", 10);
+    const totalReps = session.reduce((s, i) => s + i.totalReps, 0);
     await postWorkout({
       lines: session.map((i) => i.label),
-      totalReps: session.reduce((s, i) => s + i.totalReps, 0),
+      totalReps,
       breakdown,
       durationSec: durationSec > 0 ? durationSec : undefined,
       loggedAtDateKey: mode === "backfill" ? dateKey : undefined,
+    });
+    track("workout_logged", {
+      mode,
+      item_count: session.length,
+      total_reps: totalReps,
+      exercise_count: Object.keys(breakdown).length,
     });
     setDone(true);
     setTimeout(() => router.push(mode === "backfill" ? "/history" : "/home"), 900);

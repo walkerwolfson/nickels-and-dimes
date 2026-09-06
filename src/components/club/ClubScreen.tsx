@@ -11,6 +11,7 @@ import { DiscoverClubs } from "@/components/club/DiscoverClubs";
 import { CreateClub } from "@/components/club/CreateClub";
 import { EXERCISES, fmtTime } from "@/lib/domain";
 import { joinClub, createClub } from "@/lib/actions/club";
+import { track } from "@/lib/analytics";
 import { LEADERBOARD_RANGES, type ClubSummary, type LeaderboardRange, type LeaderboardRow } from "@/lib/data/club";
 
 const ORDINAL = (n: number) => (["st", "nd", "rd"][n - 1] ?? "th");
@@ -93,11 +94,13 @@ export function ClubScreen({
 
   async function handleJoin(club: ClubSummary) {
     await joinClub(club.id);
+    track("club_joined", { source: "club_screen" });
     navigate({ club: club.id, view: null, q: null });
   }
 
   async function handleCreate(name: string, isPublic: boolean) {
     const { id } = await createClub(name, isPublic);
+    track("club_created", { is_public: isPublic });
     navigate({ club: id, view: null, q: null });
   }
 

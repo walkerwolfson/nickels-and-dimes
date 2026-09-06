@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail } from "lucide-react";
 import { sendMagicLink, completeOtpLogin, type AuthState } from "@/lib/actions/auth";
+import { track } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 
@@ -28,12 +29,14 @@ function CodeEntry({ email }: { email: string }) {
       return;
     }
 
-    const { error: completeError } = await completeOtpLogin();
+    const { error: completeError, isNewUser } = await completeOtpLogin();
     if (completeError) {
       setError(completeError);
       setPending(false);
       return;
     }
+
+    track(isNewUser ? "sign_up" : "login", { method: "otp" });
 
     router.push("/home");
     router.refresh();

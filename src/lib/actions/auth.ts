@@ -38,7 +38,7 @@ export async function sendMagicLink(_prevState: AuthState, formData: FormData): 
 // marketing-opt-in choice, mirroring what /auth/callback does for the link-click flow.
 // Needed because verifyOtp completes the session directly in the browser and never hits
 // that route.
-export async function completeOtpLogin(): Promise<{ error?: string }> {
+export async function completeOtpLogin(): Promise<{ error?: string; isNewUser?: boolean }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -53,6 +53,8 @@ export async function completeOtpLogin(): Promise<{ error?: string }> {
   const displayName =
     user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "Athlete";
 
+  const existing = await prisma.profile.findUnique({ where: { id: user.id }, select: { id: true } });
+
   await prisma.profile.upsert({
     where: { id: user.id },
     create: { id: user.id, email: user.email, displayName, marketingOptIn },
@@ -60,7 +62,7 @@ export async function completeOtpLogin(): Promise<{ error?: string }> {
   });
 
   cookieStore.set("marketing_opt_in", "", { maxAge: 0, path: "/" });
-  return {};
+  return { isNewUser: !existing };
 }
 
 export async function signOut(): Promise<void> {

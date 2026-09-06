@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { completeOtpLogin } from "@/lib/actions/auth";
+import { track } from "@/lib/analytics";
 
 // Requires an explicit tap before verifying, rather than exchanging the code
 // the instant this page loads. Some email providers (Outlook Safe Links and
@@ -39,12 +40,14 @@ function ConfirmSignIn() {
       return;
     }
 
-    const { error: completeError } = await completeOtpLogin();
+    const { error: completeError, isNewUser } = await completeOtpLogin();
     if (completeError) {
       setStatus("error");
       setError(completeError);
       return;
     }
+
+    track(isNewUser ? "sign_up" : "login", { method: "magiclink" });
 
     router.push("/home");
     router.refresh();
