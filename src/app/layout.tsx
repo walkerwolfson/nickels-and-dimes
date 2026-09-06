@@ -29,10 +29,27 @@ const inter = Inter({
 
 const TAGLINE = "Log Reps, Chase PRs, and Compete With Friends";
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Nickels & Dimes",
+  url: "https://nickelsanddimes.app",
+  applicationCategory: "HealthApplication",
+  operatingSystem: "Web",
+  description: TAGLINE,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://nickelsanddimes.app"),
   title: "Nickels & Dimes",
   description: TAGLINE,
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -48,6 +65,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nickels & Dimes",
     description: TAGLINE,
+    site: "@WWolfson97",
+    creator: "@WWolfson97",
   },
 };
 
@@ -65,7 +84,13 @@ export default function RootLayout({
       lang="en"
       className={`${blackOpsOne.variable} ${oswald.variable} ${ibmPlexMono.variable} ${inter.variable} h-full`}
     >
-      <body className="min-h-dvh font-body antialiased">{children}</body>
+      <body className="min-h-dvh font-body antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+        />
+        {children}
+      </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId="G-6BBLY66WJF" />}
     </html>
   );

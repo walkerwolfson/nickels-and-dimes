@@ -4,6 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 // "/auth" covers the OAuth/magic-link callback route, which runs before a session exists.
 const PUBLIC_ROUTES = ["/login", "/signup", "/auth"];
 
+// The marketing landing page. Signed-out visitors see it; signed-in users get
+// bounced to /home the same way they are from /login.
+const LANDING_PATH = "/";
+
 const AUTH_ENFORCEMENT_ENABLED = true;
 
 export default async function proxy(request: NextRequest) {
@@ -37,7 +41,8 @@ export default async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => path.startsWith(route));
+  const isPublicRoute =
+    path === LANDING_PATH || PUBLIC_ROUTES.some((route) => path.startsWith(route));
 
   if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
