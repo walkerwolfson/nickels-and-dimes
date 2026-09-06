@@ -149,13 +149,26 @@ export default async function GuidePage({
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-6 text-[12.5px] text-text-faint">
-          <Link href="/" className="font-data hover:text-text-dim">
-            Nickels &amp; Dimes
-          </Link>
-          <Link href="/guides" className="hover:text-text-dim">
-            All guides
-          </Link>
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 px-5 py-6 text-[12.5px] text-text-faint">
+          <div className="flex w-full items-center justify-between">
+            <Link href="/" className="font-data hover:text-text-dim">
+              Nickels &amp; Dimes
+            </Link>
+            <Link href="/guides" className="hover:text-text-dim">
+              All guides
+            </Link>
+          </div>
+          <p>
+            Built by{" "}
+            <a
+              href="https://walker-wolfson.pages.dev"
+              target="_blank"
+              rel="noopener"
+              className="hover:text-text-dim"
+            >
+              Walker Wolfson, AI Operations Consulting
+            </a>
+          </p>
         </div>
       </footer>
     </div>

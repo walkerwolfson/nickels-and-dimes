@@ -376,24 +376,37 @@ export default function LandingPage() {
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-5 py-6 text-[12.5px] text-text-faint sm:flex-row">
-          <span className="font-data">Nickels &amp; Dimes</span>
-          <div className="flex items-center gap-4">
-            <Link href="/guides" className="hover:text-text-dim">
-              Guides
-            </Link>
-            <Link href="/login" className="hover:text-text-dim">
-              Log in
-            </Link>
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-5 py-6 text-[12.5px] text-text-faint">
+          <div className="flex w-full flex-col items-center justify-between gap-3 sm:flex-row">
+            <span className="font-data">Nickels &amp; Dimes</span>
+            <div className="flex items-center gap-4">
+              <Link href="/guides" className="hover:text-text-dim">
+                Guides
+              </Link>
+              <Link href="/login" className="hover:text-text-dim">
+                Log in
+              </Link>
+              <a
+                href="https://www.producthunt.com/products/nickels-dimes"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-text-dim"
+              >
+                Product Hunt
+              </a>
+            </div>
+          </div>
+          <p>
+            Built by{" "}
             <a
-              href="https://www.producthunt.com/products/nickels-dimes"
+              href="https://walker-wolfson.pages.dev"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener"
               className="hover:text-text-dim"
             >
-              Product Hunt
+              Walker Wolfson, AI Operations Consulting
             </a>
-          </div>
+          </p>
         </div>
       </footer>
     </div>
