@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Flame, Trophy, Rss, Dumbbell } from "lucide-react";
+import { Flame } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Nickels & Dimes: Calisthenics Rep Tracker with PRs, Clubs and Leaderboards",
@@ -15,167 +15,127 @@ export const metadata: Metadata = {
   },
 };
 
-const FAQ = [
-  {
-    q: "Is it really free?",
-    a: "Yes. There's no paid tier right now and no ads. If that changes later, early users get told first.",
-  },
-  {
-    q: "What equipment do I need?",
-    a: "A pull-up bar covers most of the list. Floor movements like push-ups, squats, and planks need nothing.",
-  },
-  {
-    q: "Which movements can I track?",
-    a: "Nineteen so far, including push-ups, pull-ups, chin-ups, dips, muscle-ups, pistol squats, pike and handstand push-ups, inverted rows, leg raises, and timed holds like planks and dead hangs.",
-  },
-  {
-    q: "How does the leaderboard work?",
-    a: "Each club has one. It adds up total reps logged during the calendar month and resets on the 1st, so there's always a fresh race.",
-  },
-  {
-    q: "Who can see my workouts?",
-    a: "Nickels & Dimes is social by design. Sets you log appear in a feed other members can like and comment on, and you get a profile with your records. Private clubs are the closed part: that leaderboard is only visible to members you invite.",
-  },
-  {
-    q: "Do I need to install anything?",
-    a: "No. It runs in your browser. Add it to your home screen and it opens like an app.",
-  },
-];
-
-function MiniLeaderboard() {
-  const rows = [
-    { r: 1, name: "Jordan M.", v: "12,400" },
-    { r: 2, name: "You", v: "11,120" },
-    { r: 3, name: "Priya K.", v: "9,860" },
-  ];
+// Rendered mockups instead of static screenshots for the "What it looks like" section —
+// a real screenshot needs re-capturing (and can crop mid-scroll, exactly what was wrong
+// with the old ones) every time the app's UI changes; these are just JSX, so they stay
+// accurate for free and never cut off content unintentionally.
+function TabMockup({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="rounded-[12px] border-[1.5px] border-border bg-surface p-3">
-      {rows.map((row) => (
-        <div key={row.r} className="flex items-center gap-3 py-1.5">
-          <span
-            className="font-display text-sm"
-            style={{ width: 16, color: row.r <= 3 ? "var(--purple-deep)" : "var(--text-faint)" }}
-          >
-            {row.r}
-          </span>
-          <span className="flex-1 text-[13px] text-text">{row.name}</span>
-          <span className="font-data text-[11.5px] text-text-dim">{row.v}</span>
-        </div>
-      ))}
+    <div className="h-full rounded-[16px] border-[1.5px] border-border bg-surface p-4 shadow-sm">
+      <h3 className="font-stencil text-[15px] uppercase tracking-wide text-text">{title}</h3>
+      <span className="font-data text-[10px] text-text-faint">{subtitle}</span>
+      <div className="mt-3">{children}</div>
     </div>
   );
 }
 
-function MiniPRs() {
+function PRsMockup() {
   const rows = [
     { name: "Pull-ups", v: "24" },
+    { name: "Push-ups", v: "150" },
     { name: "Dips", v: "48" },
-    { name: "Dead-hang", v: "2:10" },
+    { name: "Muscle-ups", v: null },
   ];
   return (
-    <div className="rounded-[12px] border-[1.5px] border-border bg-surface p-3">
+    <div>
       {rows.map((row) => (
         <div
           key={row.name}
-          className="flex items-center justify-between border-b border-border py-2 last:border-0"
+          className="flex items-center justify-between border-b border-border py-2.5 last:border-0"
         >
           <span className="text-[13px] font-medium text-text">{row.name}</span>
-          <span className="flex items-center gap-1.5">
-            <Flame size={12} color="var(--pink)" />
-            <span className="font-display text-[15px] text-purple-deep">{row.v}</span>
-          </span>
+          {row.v ? (
+            <span className="flex items-center gap-1.5">
+              <Flame size={12} color="var(--pink)" />
+              <span className="font-display text-[16px] text-purple-deep">{row.v}</span>
+            </span>
+          ) : (
+            <span className="font-data text-[10.5px] italic text-text-faint">Set a New PR!</span>
+          )}
         </div>
       ))}
     </div>
   );
 }
 
-function MiniFeed() {
+function ClubsMockup() {
+  const rows = [
+    { r: 1, name: "You", v: "120" },
+    { r: 2, name: "Jordan M.", v: "98" },
+    { r: 3, name: "Priya K.", v: "76" },
+  ];
   return (
-    <div className="rounded-[12px] border-[1.5px] border-border bg-surface p-3">
-      <div className="flex items-center gap-2.5">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple font-data text-[10px] font-semibold text-white">
-          CR
-        </span>
-        <div className="flex flex-col">
-          <span className="text-[12px] font-bold text-text">Casey R.</span>
-          <span className="font-data text-[9.5px] text-text-faint">3h ago</span>
+    <div>
+      <span className="inline-block rounded-[8px] bg-purple-soft px-2.5 py-1 font-data text-[10px] font-bold text-purple-deep">
+        New York Calisthenics
+      </span>
+      <div className="mt-3 flex items-end justify-between">
+        <div>
+          <span className="font-data text-[10px] uppercase tracking-wide text-text-faint">
+            Push-ups · this month
+          </span>
+          <div className="font-display text-[28px] leading-none text-text">120</div>
+        </div>
+        <span className="font-data text-[11px] font-bold text-purple-deep">1st place</span>
+      </div>
+      <div className="mt-3 divide-y divide-border border-t border-border">
+        {rows.map((row) => (
+          <div key={row.r} className="flex items-center gap-3 py-2">
+            <span
+              className="font-display text-sm"
+              style={{ width: 16, color: row.r === 1 ? "var(--purple-deep)" : "var(--text-faint)" }}
+            >
+              {row.r}
+            </span>
+            <span className="flex-1 text-[13px] text-text">{row.name}</span>
+            <span className="font-data text-[11.5px] text-text-dim">{row.v}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeedMockup() {
+  return (
+    <div>
+      <div className="rounded-[12px] border-[1.5px] border-border bg-bg p-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple font-data text-[10px] font-semibold text-white">
+            CR
+          </span>
+          <div className="flex flex-col">
+            <span className="text-[12px] font-bold text-text">Casey R.</span>
+            <span className="font-data text-[9.5px] text-text-faint">3h ago</span>
+          </div>
+        </div>
+        <p className="mt-2 font-display text-[14px] uppercase text-text">150 push-ups</p>
+        <div className="mt-1.5 flex items-center gap-3 text-text-dim">
+          <span className="flex items-center gap-1">
+            <Flame size={12} color="var(--pink)" />
+            <span className="font-data text-[10.5px]">12</span>
+          </span>
+          <span className="font-data text-[10.5px]">3 comments</span>
         </div>
       </div>
-      <p className="mt-2 font-display text-[14px] uppercase text-text">150 push-ups</p>
-      <div className="mt-1.5 flex items-center gap-3 text-text-dim">
-        <span className="flex items-center gap-1">
-          <Flame size={12} color="var(--pink)" />
-          <span className="font-data text-[10.5px]">12</span>
-        </span>
-        <span className="font-data text-[10.5px]">3 comments</span>
-      </div>
-    </div>
-  );
-}
-
-function MiniWod() {
-  return (
-    <div className="rounded-[12px] border-[1.5px] border-border bg-surface p-3">
-      <span className="font-data text-[10px] font-bold tracking-widest text-purple-deep">
-        WORKOUT
+      <span className="mt-2.5 block font-data text-[10px] text-text-faint">
+        + 12 more sets logged today
       </span>
-      <p className="mt-1 font-display text-[14px] uppercase text-text">Nickels and Dimes</p>
-      <p className="mt-1 text-[12px] leading-snug text-text-dim">
-        EMOM: 5 pull-ups + 10 push-ups per round. Log the rounds, it does the rep math.
-      </p>
     </div>
   );
 }
-
-const FEATURES = [
-  {
-    icon: Flame,
-    title: "Every PR, tracked for you",
-    body:
-      "Log a movement and the app checks it against your best. Beat it and the record updates on its own. Rep movements and timed holds are handled the same way.",
-    visual: <MiniPRs />,
-  },
-  {
-    icon: Trophy,
-    title: "Clubs with a monthly leaderboard",
-    body:
-      "Start a public club anyone can join, or a private one for your training partners. The leaderboard ranks total reps for the month and clears on the 1st.",
-    visual: <MiniLeaderboard />,
-  },
-  {
-    icon: Rss,
-    title: "A feed for your sets",
-    body:
-      "Every workout you log lands in the feed, where other members can like it and leave a comment. This is the social layer the serious weighted-calisthenics apps leave out.",
-    visual: <MiniFeed />,
-  },
-  {
-    icon: Dumbbell,
-    title: "Named workouts, built in",
-    body:
-      "Log the Nickels and Dimes EMOM by the round and it converts to 5 pull-ups and 10 push-ups per round. Murph and a few others are ready to go too.",
-    visual: <MiniWod />,
-  },
-];
 
 export default function LandingPage() {
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQ.map(({ q, a }) => ({
-      "@type": "Question",
-      name: q,
-      acceptedAnswer: { "@type": "Answer", text: a },
-    })),
-  };
-
   return (
     <div className="min-h-dvh bg-bg">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
       <script
         dangerouslySetInnerHTML={{
           __html:
@@ -204,7 +164,7 @@ export default function LandingPage() {
             data-cta="header"
             className="rounded-[10px] bg-purple px-4 py-2 font-display text-[13px] uppercase tracking-wide text-white hover:bg-purple-deep"
           >
-            Start free
+            Sign Up
           </Link>
         </nav>
       </header>
@@ -229,7 +189,7 @@ export default function LandingPage() {
               data-cta="hero"
               className="w-full rounded-[10px] bg-purple px-6 py-3.5 font-display text-[15px] uppercase tracking-wide text-white hover:bg-purple-deep sm:w-auto"
             >
-              Start free
+              Sign Up
             </Link>
             <a
               href="#features"
@@ -241,120 +201,23 @@ export default function LandingPage() {
         </section>
 
         {/* What it looks like */}
-        <section className="border-b border-border">
+        <section id="features" className="border-b border-border">
           <div className="mx-auto max-w-5xl px-5 pb-14">
             <h2 className="text-center font-display text-xl uppercase text-text sm:text-2xl">
               What it looks like
             </h2>
             <div className="mt-9 grid gap-5 sm:grid-cols-3">
-              {[
-                {
-                  src: "/marketing/history.png",
-                  w: 740,
-                  h: 833,
-                  alt: "Weekly rep totals broken down by movement with a bar chart",
-                  cap: "Your last 7 days",
-                },
-                {
-                  src: "/marketing/club.png",
-                  w: 740,
-                  h: 779,
-                  alt: "A club leaderboard ranking members by push-ups this month",
-                  cap: "Club leaderboard",
-                },
-                {
-                  src: "/marketing/home.png",
-                  w: 740,
-                  h: 833,
-                  alt: "The home feed showing a logged set with likes and comments",
-                  cap: "The feed",
-                },
-              ].map((s) => (
-                <figure key={s.src} className="m-0">
-                  <Image
-                    src={s.src}
-                    alt={s.alt}
-                    width={s.w}
-                    height={s.h}
-                    className="w-full rounded-[16px] border-[1.5px] border-border shadow-sm"
-                  />
-                  <figcaption className="mt-2.5 text-center font-data text-[10px] uppercase tracking-widest text-text-faint">
-                    {s.cap}
-                  </figcaption>
-                </figure>
-              ))}
+              <TabMockup title="PRs" subtitle="Personal records across every movement">
+                <PRsMockup />
+              </TabMockup>
+              <TabMockup title="Clubs" subtitle="Push-ups · this month">
+                <ClubsMockup />
+              </TabMockup>
+              <TabMockup title="The Feed" subtitle="Sunday, Sep 6">
+                <FeedMockup />
+              </TabMockup>
             </div>
           </div>
-        </section>
-
-        {/* Why it exists */}
-        <section className="border-y border-border bg-surface">
-          <div className="mx-auto max-w-3xl px-5 py-12">
-            <h2 className="font-display text-xl uppercase text-text sm:text-2xl">Why it exists</h2>
-            <div className="mt-4 space-y-3 text-[15px] leading-relaxed text-text-dim">
-              <p>
-                I was logging my own sets in the Notes app and none of the trackers I tried fit the
-                job. Most were packed with coaching programs I didn&apos;t want. The rest were barbell
-                apps with bodyweight reps bolted on.
-              </p>
-              <p>
-                The two good apps for serious weighted calisthenics, Weighted and StreetLifter, both
-                leave out anything social on purpose. Nickels &amp; Dimes is the piece they skip: the
-                same careful logging, plus clubs, a leaderboard, and a feed.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="features" className="mx-auto max-w-5xl px-5 py-14">
-          <h2 className="text-center font-display text-xl uppercase text-text sm:text-2xl">
-            What you get
-          </h2>
-          <div className="mt-9 grid gap-6 sm:grid-cols-2">
-            {FEATURES.map(({ icon: Icon, title, body, visual }) => (
-              <div
-                key={title}
-                className="flex flex-col rounded-[16px] border-[1.5px] border-border bg-surface p-5"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-purple-soft">
-                    <Icon size={17} color="var(--purple-deep)" />
-                  </span>
-                  <h3 className="font-display text-[17px] uppercase text-text">{title}</h3>
-                </div>
-                <p className="mt-3 text-[14px] leading-relaxed text-text-dim">{body}</p>
-                <div className="mt-4">{visual}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Who it's for */}
-        <section className="border-y border-border bg-surface">
-          <div className="mx-auto max-w-3xl px-5 py-12">
-            <h2 className="font-display text-xl uppercase text-text sm:text-2xl">Who it&apos;s for</h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-text-dim">
-              You&apos;re already working a progression like the planche, front lever, one-arm
-              pull-up, or a heavy weighted dip. You track your training somewhere, whether that&apos;s
-              a spreadsheet or a notes app. You&apos;d rather see the number than a motivational
-              quote. That&apos;s the person this is built for. If you&apos;re earlier on and running
-              the r/bodyweightfitness routine, it works for you too.
-            </p>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="mx-auto max-w-3xl px-5 py-14">
-          <h2 className="font-display text-xl uppercase text-text sm:text-2xl">Questions</h2>
-          <dl className="mt-6 divide-y divide-border border-y border-border">
-            {FAQ.map(({ q, a }) => (
-              <div key={q} className="py-5">
-                <dt className="text-[15px] font-semibold text-text">{q}</dt>
-                <dd className="mt-2 text-[14px] leading-relaxed text-text-dim">{a}</dd>
-              </div>
-            ))}
-          </dl>
         </section>
 
         {/* Final CTA */}
@@ -370,7 +233,7 @@ export default function LandingPage() {
             data-cta="footer_cta"
             className="mt-6 inline-block rounded-[10px] bg-purple px-8 py-3.5 font-display text-[15px] uppercase tracking-wide text-white hover:bg-purple-deep"
           >
-            Start free
+            Sign Up
           </Link>
         </section>
       </main>
