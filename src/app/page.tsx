@@ -183,7 +183,7 @@ export default function LandingPage() {
             movement, and drops you into a monthly leaderboard against your club. It&apos;s free, and
             there are no ads.
           </p>
-          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-7 flex justify-center">
             <Link
               href="/login"
               data-cta="hero"
@@ -191,17 +191,11 @@ export default function LandingPage() {
             >
               Sign Up
             </Link>
-            <a
-              href="#features"
-              className="w-full rounded-[10px] border-[1.5px] border-border bg-surface px-6 py-3.5 text-[14px] font-semibold text-text hover:border-purple sm:w-auto"
-            >
-              See how it works
-            </a>
           </div>
         </section>
 
         {/* What it looks like */}
-        <section id="features" className="border-b border-border">
+        <section>
           <div className="mx-auto max-w-5xl px-5 pb-14">
             <h2 className="text-center font-display text-xl uppercase text-text sm:text-2xl">
               What it looks like
@@ -218,23 +212,6 @@ export default function LandingPage() {
               </TabMockup>
             </div>
           </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="mx-auto max-w-3xl px-5 pb-20 text-center">
-          <h2 className="font-stencil text-[26px] uppercase leading-tight text-text sm:text-[32px]">
-            Start logging today
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-[14.5px] text-text-dim">
-            Make an account in under a minute. Bring your numbers, or start from your next set.
-          </p>
-          <Link
-            href="/login"
-            data-cta="footer_cta"
-            className="mt-6 inline-block rounded-[10px] bg-purple px-8 py-3.5 font-display text-[15px] uppercase tracking-wide text-white hover:bg-purple-deep"
-          >
-            Sign Up
-          </Link>
         </section>
       </main>
 
@@ -267,7 +244,7 @@ export default function LandingPage() {
               rel="noopener"
               className="hover:text-text-dim"
             >
-              Walker Wolfson, AI Operations Consulting
+              Walker Wolfson
             </a>
           </p>
         </div>
