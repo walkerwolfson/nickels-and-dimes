@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { join } from "node:path";
 import { readFile } from "node:fs/promises";
 
-const SIZE = 1080;
+const WIDTH = 1080;
 const DARK = "#14121F";
 
 function BarbellMark({ width, height }: { width: number; height: number }) {
@@ -43,16 +43,43 @@ function parseLine(line: string): { label: string; value: string } {
   return { value: "", label: line.toUpperCase() };
 }
 
-// Fewer stat rows means more empty space to fill, so scale everything up; more rows (the
-// composer caps at 6 exercises + 1 duration row = 7) means scale down to keep it all fitting
-// cleanly above the fold instead of overflowing the card.
-function scaleForRowCount(n: number): number {
-  if (n <= 1) return 2.15;
-  if (n === 2) return 1.65;
-  if (n === 3) return 1;
-  if (n === 4) return 0.85;
-  if (n === 5) return 0.74;
-  return 0.65;
+// Layout constants at 1:1 scale — kept fixed regardless of row count. A workout with one
+// exercise used to shrink the card's own font down to fit a fixed 1080x1080 square (leaving
+// a wall of empty space below it); now the card's *height* adapts to the content instead, so
+// the text stays the same readable size whether there's 1 stat row or 7.
+const CARD_PADDING_TOP = 50;
+const CARD_PADDING_BOTTOM = 40;
+const CARD_BORDER = 12;
+const OUTER_PADDING = 26;
+const BARBELL_HEIGHT = 74;
+const TITLE_GAP = 22;
+const TITLE_LINE_HEIGHT = 46; // fontSize 38
+const DATE_BLOCK_HEIGHT = 34; // marginTop 10 + fontSize 20 line
+const ROWS_TOP_BORDER = 4;
+const ROWS_PADDING_TOP = 32;
+const ROWS_MARGIN_TOP = 32;
+const ROW_GAP = 24;
+const ROW_HEIGHT = 53; // tallest of the label (25) / value (44) line heights in a stat row
+const FOOTER_GAP = 40;
+const FOOTER_HEIGHT = 22;
+const MIN_HEIGHT = 480;
+const MAX_HEIGHT = 1400;
+
+function computeHeight(rowCount: number, hasDate: boolean): number {
+  const rowsBlock = rowCount > 0 ? ROWS_TOP_BORDER + ROWS_PADDING_TOP + ROWS_MARGIN_TOP + rowCount * ROW_HEIGHT + Math.max(rowCount - 1, 0) * ROW_GAP : 0;
+  const total =
+    OUTER_PADDING * 2 +
+    CARD_BORDER * 2 +
+    CARD_PADDING_TOP +
+    CARD_PADDING_BOTTOM +
+    BARBELL_HEIGHT +
+    TITLE_GAP +
+    TITLE_LINE_HEIGHT +
+    (hasDate ? DATE_BLOCK_HEIGHT : 0) +
+    rowsBlock +
+    FOOTER_GAP +
+    FOOTER_HEIGHT;
+  return Math.min(Math.max(Math.round(total), MIN_HEIGHT), MAX_HEIGHT);
 }
 
 export async function GET(request: Request) {
@@ -68,8 +95,7 @@ export async function GET(request: Request) {
   const stats = lines.map(parseLine);
   if (duration) stats.push({ label: "TIME", value: duration });
 
-  const scale = scaleForRowCount(stats.length || 1);
-  const px = (n: number) => Math.round(n * scale);
+  const height = computeHeight(stats.length, Boolean(date));
 
   const fontData = await readFile(join(process.cwd(), "public/fonts/BlackOpsOne-Regular.woff"));
 
@@ -82,7 +108,7 @@ export async function GET(request: Request) {
           display: "flex",
           flexDirection: "column",
           background: "#EEF0FB",
-          padding: "26px",
+          padding: OUTER_PADDING,
         }}
       >
         <div
@@ -92,9 +118,9 @@ export async function GET(request: Request) {
             flex: 1,
             alignItems: "center",
             background: "#fff",
-            border: "12px solid " + DARK,
+            border: `${CARD_BORDER}px solid ${DARK}`,
             borderRadius: 6,
-            padding: "50px 48px 40px",
+            padding: `${CARD_PADDING_TOP}px 48px ${CARD_PADDING_BOTTOM}px`,
             position: "relative",
           }}
         >
@@ -103,12 +129,12 @@ export async function GET(request: Request) {
           <CornerTick bottom left />
           <CornerTick bottom right />
 
-          <BarbellMark width={px(270)} height={px(74)} />
-          <div style={{ display: "flex", fontFamily: "Black Ops One", fontSize: px(38), color: DARK, marginTop: px(22), letterSpacing: 3 }}>
+          <BarbellMark width={270} height={BARBELL_HEIGHT} />
+          <div style={{ display: "flex", fontFamily: "Black Ops One", fontSize: 38, color: DARK, marginTop: TITLE_GAP, letterSpacing: 3 }}>
             NICKELS & DIMES
           </div>
           {date && (
-            <div style={{ display: "flex", fontSize: Math.min(px(20), 26), color: "#65637F", marginTop: px(10), letterSpacing: 2 }}>
+            <div style={{ display: "flex", fontSize: 20, color: "#65637F", marginTop: 10, letterSpacing: 2 }}>
               {date.toUpperCase()}
             </div>
           )}
@@ -119,18 +145,18 @@ export async function GET(request: Request) {
                 display: "flex",
                 width: "100%",
                 flexDirection: "column",
-                gap: px(24),
-                borderTop: `4px solid ${DARK}`,
-                paddingTop: px(32),
-                marginTop: px(32),
+                gap: ROW_GAP,
+                borderTop: `${ROWS_TOP_BORDER}px solid ${DARK}`,
+                paddingTop: ROWS_PADDING_TOP,
+                marginTop: ROWS_MARGIN_TOP,
               }}
             >
               {stats.map((s, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                  <div style={{ display: "flex", fontSize: Math.min(px(25), 62), color: DARK, letterSpacing: 2, fontWeight: 700 }}>
+                  <div style={{ display: "flex", fontSize: 25, color: DARK, letterSpacing: 2, fontWeight: 700 }}>
                     {s.label}
                   </div>
-                  <div style={{ display: "flex", fontFamily: "Black Ops One", fontSize: Math.min(px(44), 130), color: "#6E4FE0" }}>
+                  <div style={{ display: "flex", fontFamily: "Black Ops One", fontSize: 44, color: "#6E4FE0" }}>
                     {s.value}
                   </div>
                 </div>
@@ -138,15 +164,15 @@ export async function GET(request: Request) {
             </div>
           )}
 
-          <div style={{ display: "flex", flex: 1 }} />
-
-          <div style={{ display: "flex", fontSize: 17, color: "#9C9AB6", letterSpacing: 3 }}>NICKELSANDDIMES.APP</div>
+          <div style={{ display: "flex", marginTop: FOOTER_GAP, fontSize: 17, color: "#9C9AB6", letterSpacing: 3 }}>
+            NICKELSANDDIMES.APP
+          </div>
         </div>
       </div>
     ),
     {
-      width: SIZE,
-      height: SIZE,
+      width: WIDTH,
+      height,
       fonts: [{ name: "Black Ops One", data: fontData, style: "normal", weight: 400 }],
     }
   );
